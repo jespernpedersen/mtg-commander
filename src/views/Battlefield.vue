@@ -12,7 +12,7 @@
                         </div>
 					</div>
 					<div class="library-list">
-                            <Card v-for="(card, i) in library" :key="i"
+                            <Card v-for="card in library" :key="card.id"
                                 :id="card.id"
                                 :name="card.name"
                                 :image="card.image"
@@ -45,8 +45,18 @@
                     </div>
 				</div>
 				<div class="special-zone">
+					
+						<div class="commander-damage-wrapper" v-if="commander.length > 0">
+							<div class="commander-damages" v-if="commanderdamages">
+								<div class="commander-damage" v-for="(commanderdamage, i) in commanderdamages" :key="i">
+									<input type="text" v-model="commanderdamage.name" />
+									<span class="commanderdamage"  v-on:click="IncreaseCDamage($event, i)" v-on:click.right="DecreaseCDamage($event, i)">{{ commanderdamage.dmg }}</span>
+								</div>
+							</div>
+							<button @click="AddCommander()">Add Commander Damage</button>
+						</div>
 					<div class="life-counter" v-on:click="DecreaseLife($event)" v-on:click.right="IncreaseLife($event)">
-						{{ lifecount }}
+						<div class="life-total">{{ lifecount }}</div>
 					</div>
 					<div class="command-zone">
 						<h2>COMMAND ZONE</h2>
@@ -103,12 +113,23 @@ export default {
 			hasSearchedCommander: null,
             testlibrary: [],
             playmat: '',
-            size: 'normal'
+			size: 'normal',
+			commanderdamages: [],
+			commanderid: 0
 		}
 	},
 	created() {
 	},
 	methods: {
+		AddCommander() {
+			let CommanderArray = {
+				id: this.commanderid,
+				name: "Name",
+				dmg: 0
+			}
+			this.commanderdamages.push(CommanderArray)
+			this.commaderid++;
+		},
         ChangeView(view) {
             this.size = view;
 		},
@@ -117,27 +138,38 @@ export default {
 				playmat: url
 			})
 		},
+		DecreaseCDamage(e, id) {
+			e.preventDefault();
+			if(e.shiftKey) {
+				this.commanderdamages[id].dmg -= 5
+			}
+			else {
+				this.commanderdamages[id].dmg--
+			}
+		},
+		IncreaseCDamage(e, id) {
+			if(e.shiftKey) {
+				this.commanderdamages[id].dmg += 5
+			}
+			else {
+				this.commanderdamages[id].dmg++
+			}
+		},
 		DecreaseLife(e) {
 			if(e.shiftKey) {
 				this.lifecount -= 5
-				
-			console.log(e)
 			}
 			else {
 				this.lifecount--
-				console.log(this.lifecount)
 			}
 		},
 		IncreaseLife(e) {
 			e.preventDefault();
 			if(e.shiftKey) {
 				this.lifecount += 5
-				
-			console.log(e)
 			}
 			else {
 				this.lifecount++
-				console.log(this.lifecount)
 			}
 		},
 		SaveLibrary(cards) {
@@ -320,14 +352,14 @@ export default {
         font-size: 12px;
     }
 
-    .result button {
+    button {
         border: 3px solid #FFF;
         padding: 3px 8px;
         text-transform: uppercase;
         transition: all 0.3s ease-in-out;
         background-color: transparent;
     }
-    .result button:hover {
+    button:hover {
         background-color: #FFF;
         color: #222;
     }
@@ -372,8 +404,41 @@ export default {
 		position: absolute;
 		top: 10px;
 		left: -100px;
-		font-size: 64px;
 		cursor: pointer;
 		outline: none;
+	}
+
+	.life-total {
+		font-size: 64px;
+	}
+	.commander-damage-wrapper {
+		position: absolute;
+		width: auto;
+		right: 140%;
+		top: 2.9%;
+		font-size: 16px;
+		display: flex;
+	}
+	.commander-damages {
+		display: inline-flex;
+		align-items: center;
+		font-size: 20px;
+	}
+
+	.commander-damage {
+		display: grid;
+		grid-template-columns: 1fr 50px;
+		grid-gap: 15px;
+	}
+
+	.commander-damage input {
+		display: inline-block;
+		text-align: right;
+		width: auto;
+		max-width: 75px;
+	}
+	
+	.commander-damage-wrapper > button {
+		min-width: 250px
 	}
 </style>
