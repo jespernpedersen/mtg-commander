@@ -54,6 +54,7 @@ export default {
         }
         // Not pressing shift
         else if(e.ctrlKey) {
+            console.log(id)
             libraryRef.doc(this.$router.app._route.params.library).collection("cards").doc(String(id)).delete()
         }
     },

@@ -13,7 +13,7 @@
 					</div>
 					<div class="library-list">
                             <Card v-for="(card, i) in library" :key="i"
-                                :id="i"
+                                :id="card.id"
                                 :name="card.name"
                                 :image="card.image"
                             >
@@ -117,14 +117,11 @@ export default {
 			cards.forEach((card) => {
 				let card_name = card.name
 				let card_image = card.image_uris.png
-
-				console.log(this.library.length)
 				if(this.library.length > 0) {
 					libraryRef.doc(this.$router.app._route.params.library).collection("cards").orderBy("id", "desc").limit(1).get().then((querySnapshot) => {
 						querySnapshot.forEach((doc) => {
 							if(doc.exists) {
 								let cardData = doc.data()
-								console.log(cardData)
 								let card_id = cardData.id + 1;
 
 								libraryRef.doc(this.$router.app._route.params.library).collection("cards").doc(String(card_id)).set({
