@@ -45,6 +45,9 @@
                     </div>
 				</div>
 				<div class="special-zone">
+					<div class="life-counter" v-on:click="DecreaseLife($event)" v-on:click.right="IncreaseLife($event)">
+						{{ lifecount }}
+					</div>
 					<div class="command-zone">
 						<h2>COMMAND ZONE</h2>
 						<div id="search-wrapper"  v-if="!hasSearchedCommander">
@@ -89,6 +92,7 @@ export default {
 	},
 	data () {
 		return {
+			lifecount: 20,
 			cardResults: [],
 			commander: [],
 			cards: [],
@@ -112,6 +116,29 @@ export default {
 			libraryRef.doc(this.$router.app._route.params.library).set({
 				playmat: url
 			})
+		},
+		DecreaseLife(e) {
+			if(e.shiftKey) {
+				this.lifecount -= 5
+				
+			console.log(e)
+			}
+			else {
+				this.lifecount--
+				console.log(this.lifecount)
+			}
+		},
+		IncreaseLife(e) {
+			e.preventDefault();
+			if(e.shiftKey) {
+				this.lifecount += 5
+				
+			console.log(e)
+			}
+			else {
+				this.lifecount++
+				console.log(this.lifecount)
+			}
 		},
 		SaveLibrary(cards) {
 			cards.forEach((card) => {
@@ -237,6 +264,8 @@ export default {
 	.special-zone {
 		display: grid;
 		grid-template-rows: 1fr 1fr;
+		
+		position: relative;
 	}
 	.command-zone {
 		padding: 15px;
@@ -337,5 +366,14 @@ export default {
 		display: inline-block;
 		margin-left: 15px;
 		opacity: 0.5;
+	}
+
+	.life-counter {
+		position: absolute;
+		top: 10px;
+		left: -100px;
+		font-size: 64px;
+		cursor: pointer;
+		outline: none;
 	}
 </style>
