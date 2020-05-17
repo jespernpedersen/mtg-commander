@@ -63,14 +63,14 @@
 </template>
 
 <script>
-import Search from './../components/Search'
-import Result from './../components/Result'
-import CommanderResult from './../components/CommanderResult'
-import Card from './../components/Card'
-import LandMenu from './../components/LandMenu'
+import Search from '@/components/Search'
+import Result from '@/components/Result'
+import CommanderResult from '@/components/CommanderResult'
+import Card from '@/components/Card'
+import LandMenu from '@/components/LandMenu'
 
 // Data
-import { libraryRef } from '../../firebase/db.js'
+import { libraryRef } from '@/../firebase/db.js'
 
 let library = [];
 
@@ -113,7 +113,7 @@ export default {
 					image: card.image_uris.png
                 }
 
-                libraryRef.doc(this.$router.app._route.params.library).collection("cards").doc(slug).set({
+                libraryRef.doc(this.$router.app._route.params.library).collection("cards").doc().set({
                     name: card.name,
                     slug: slug,
 					image: card.image_uris.png
@@ -193,7 +193,7 @@ export default {
 	},
 	firestore() {
 		return {
-            library: libraryRef.doc(this.$router.app._route.params.library).collection("cards"),
+            library: libraryRef.doc(this.$router.app._route.params.library).collection("cards").orderBy("name"),
             settings: libraryRef.doc(this.$router.app._route.params.library)
 		}
 	}
