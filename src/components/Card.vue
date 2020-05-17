@@ -18,6 +18,9 @@
 <script>
 import Moveable from 'vue-moveable';
 
+// Data
+import { libraryRef } from '@/../firebase/db.js'
+
 export default {
 	name: 'Card',
     props: ['image', 'name', 'id', 'type'],
@@ -50,12 +53,11 @@ export default {
             }
         }
         // Not pressing shift
-        else if(e.altKey) {
-            DeleteCard(id)
+        else if(e.ctrlKey) {
+            libraryRef.doc(this.$router.app._route.params.library).collection("cards").doc(String(id)).delete()
         }
     },
     DeleteCard(id) {
-        console.log("Delete")
     },
     IncreaseIndex() {
         this.cardIndex++;

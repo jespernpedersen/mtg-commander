@@ -51,7 +51,7 @@
 							<Search v-on:search-cards="searchCommander"/>
 						</div>
                             <Card v-for="(card, i) in commander" :key="i"
-                                :id="i"
+                                :id="card.id"
                                 :name="card.name"
                                 :image="card.image_uris.png"
                             >
@@ -115,23 +115,42 @@ export default {
 		},
 		SaveLibrary(cards) {
 			cards.forEach((card) => {
-                let slug = card.name.replace(/\s+/g, '-').toLowerCase()
-				let CardStructure = {
-                    name: card.name,
-                    slug: slug,
-					image: card.image_uris.png
-				}
-				
-				libraryRef.doc(this.$router.app._route.params.library).set({
-					playmat: 'https://i.imgur.com/xuOFwIB.png'
-				})
+				let card_name = card.name
+				let card_image = card.image_uris.png
 
-                libraryRef.doc(this.$router.app._route.params.library).collection("cards").doc().set({
-                    name: card.name,
-                    slug: slug,
-					image: card.image_uris.png
-                })
+				console.log(this.library.length)
+				if(this.library.length > 0) {
+					libraryRef.doc(this.$router.app._route.params.library).collection("cards").orderBy("id", "desc").limit(1).get().then((querySnapshot) => {
+						querySnapshot.forEach((doc) => {
+							if(doc.exists) {
+								let cardData = doc.data()
+								console.log(cardData)
+								let card_id = cardData.id + 1;
+
+								libraryRef.doc(this.$router.app._route.params.library).collection("cards").doc(String(card_id)).set({
+									id: card_id,
+									name: card_name,
+									image: card_image
+								})
+							}
+							else {					
+							}
+
+						})
+					}).catch(function(error) {
+						console.log("Error occurred")
+					})
+				}
+				else {
+					let card_id = 0
+					libraryRef.doc(this.$router.app._route.params.library).collection("cards").doc(String(card_id)).set({
+						id: card_id,
+						name: card_name,
+						image: card_image
+					})					
+				}
 			})
+
 		},
 		searchData(searchTerm) {
 			const url = 'https://api.scryfall.com/cards/named?fuzzy=';
@@ -249,10 +268,11 @@ export default {
 
     .library-list {
         padding-right: 15px;
-    }
+		padding-top: 127%;
+	}
 
 
-	.library-list .card:not(:first-child) {
+	.library-list .card {
 		margin-top: -127%;
 	}
 
