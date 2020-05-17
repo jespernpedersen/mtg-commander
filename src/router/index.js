@@ -9,7 +9,7 @@ const my_routes = [{
         library: ':id'
     },
     component: () =>
-        import ( /* webpackChunkName: "about" */ '../views/Battlefield.vue')
+        import ( /* webpackChunkName: "about" */ '@/views/Battlefield.vue')
 }]
 
 const router = new VueRouter({

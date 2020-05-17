@@ -51,8 +51,11 @@ export default {
         }
         // Not pressing shift
         else if(e.altKey) {
-            console.log("Delete")
+            DeleteCard(id)
         }
+    },
+    DeleteCard(id) {
+        console.log("Delete")
     },
     IncreaseIndex() {
         this.cardIndex++;

@@ -1,14 +1,22 @@
 <template>
-    <Moveable
-        class="moveable card"
-        v-bind="moveable"
-        @drag="handleDrag"
-    >
-        <figure @click="TapUntap($event, id)">
-            <img v-bind:src="image" :title="name" :class="{ tapped : tappedCard == true }"
-          />   
-        </figure>
-    </Moveable>
+
+						<v-layout row wrap>
+							<v-flex
+							v-for="command in commander"
+							:key="command.mtgo_id"
+							d-flex
+							>
+							<v-card flat tile class="d-flex">
+                                <Moveable
+                                    class="moveable commander"
+                                    v-bind="moveable"
+                                    @drag="handleDrag"					
+                                >
+								    <img v-for="command in commander" :key="command.oracle_id" id="commander" :src="command.image_uris.png" />
+                                </Moveable>
+							</v-card>
+						</v-flex>
+					</v-layout>
 </template>
 
 <script>

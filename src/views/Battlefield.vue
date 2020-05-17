@@ -29,6 +29,10 @@
                             <li @click="ChangeView('normal')" :class="{ active : size == 'normal' }">Normal View</li>
                             <li @click="ChangeView('small')" :class="{ active : size == 'small' }">Small View</li>
                         </ul>
+						<div class="playmat-setting">
+							<label>Playmat: </label>
+							<input type="text" v-model="settings.playmat" @change="SavePlaymat(settings.playmat)" placeholder="(should be 1920x1080)" />
+						</div>
                     </div>
                     <div class="lands">
                         <figure v-for="(basicland, i) in basiclands" :key="i" class="basic-land">
@@ -103,7 +107,12 @@ export default {
 	methods: {
         ChangeView(view) {
             this.size = view;
-        },
+		},
+		SavePlaymat(url) {
+			libraryRef.doc(this.$router.app._route.params.library).set({
+				playmat: url
+			})
+		},
 		SaveLibrary(cards) {
 			cards.forEach((card) => {
                 let slug = card.name.replace(/\s+/g, '-').toLowerCase()
@@ -111,7 +120,11 @@ export default {
                     name: card.name,
                     slug: slug,
 					image: card.image_uris.png
-                }
+				}
+				
+				libraryRef.doc(this.$router.app._route.params.library).set({
+					playmat: 'https://i.imgur.com/xuOFwIB.png'
+				})
 
                 libraryRef.doc(this.$router.app._route.params.library).collection("cards").doc().set({
                     name: card.name,
@@ -168,28 +181,6 @@ export default {
 			this.hasSearchedCommander = true;
 
 		},
-		randomData(e) {
-			const randomurl = 'https://api.scryfall.com/cards/random/'
-			this.cards = []
-			this.error = this.post = null
-			this.loading = true
-			let self = this
-			fetch(randomurl)
-			.then(res => {
-				if (res.status === 200) {
-					return res.json()
-				} else {
-					self.error = "Random Button Broke"
-				}
-			})
-			.then(response => {
-				var cardsData = response
-				self.cards = new Array(cardsData);
-			})
-			.catch(error => {
-				console.error('Error:',error);
-			})
-		}
 	},
 	firestore() {
 		return {
@@ -253,6 +244,7 @@ export default {
     .gamepad {
         background-size: 100% auto;
         background-repeat: no-repeat;
+		background-image: url('https://i.imgur.com/xuOFwIB.png')
     }
 
     .library-list {
@@ -297,6 +289,7 @@ export default {
     .settings ul {
         list-style: none;
         padding-top: 8px;
+		display: inline-block;
     }
 
     .settings ul li {
@@ -323,4 +316,9 @@ export default {
     #commander {
         width: 100%;
     }
+	.playmat-setting {
+		display: inline-block;
+		margin-left: 15px;
+		opacity: 0.5;
+	}
 </style>
