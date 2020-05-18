@@ -540,6 +540,13 @@ export default {
 
 	.deck-list .active .unicon {
 		fill: #222;
+		transform: rotate(180deg);
+		top: -4px;
+	}
+
+	.deck-list:hover .unicon {
+
+		fill: #222;		
 	}
 	
 
