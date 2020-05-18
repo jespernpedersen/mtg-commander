@@ -72,8 +72,7 @@ export default {
         }
         // Not pressing shift
         else if(e.ctrlKey) {
-            console.log(this.$parent.$parent.basiclands)
-            this.$parent.$parent.basiclands[id]
+            this.$parent.$parent.basiclands.splice(id, 1)
         }
     },
     IncreaseIndex() {
