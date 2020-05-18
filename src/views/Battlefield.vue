@@ -521,6 +521,7 @@ export default {
 		font-size: 15px;
 		cursor: pointer;
 		position: relative;
+		text-transform: uppercase;
 	}
 
 	.deck-list .active span,
