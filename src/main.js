@@ -6,6 +6,13 @@ import Vuetify from 'vuetify'
 import './plugins/vuetify'
 import 'vuetify/dist/vuetify.min.css'
 
+// Unicons
+import Unicon from 'vue-unicons'
+import { uniAngleDown } from 'vue-unicons/src/icons'
+
+Unicon.add([uniAngleDown])
+Vue.use(Unicon)
+
 // Routing
 import router from '@/router'
 

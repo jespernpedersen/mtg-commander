@@ -59,28 +59,6 @@ export default {
         console.log(this.$parent.$parent.basiclands)
 
     },
-    TapUntap(e, id) {
-        if (e.shiftKey) {
-            if(this.tappedCard == true) {
-                this.tappedCard = false
-            }
-            else {
-                this.tappedCard = true
-            }
-        }
-        // Not pressing shift
-        else {
-        }
-    },
-    IncreaseIndex() {
-        this.cardIndex++;
-    },
-    handleDrag({ target, left, top }) {
-      target.classList.add("active");
-      target.style.zIndex = this.cardIndex;
-      target.style.left = `${left}px`;
-      target.style.top = `${top}px`;
-    },
   },
 };
 	</script>
@@ -88,8 +66,6 @@ export default {
 <style scoped>
     ul {
         list-style: none;
-        display: flex;
-        justify-content: space-between;
         margin-left: 0;
         padding-left: 0;
         padding-top: 32px;
@@ -97,38 +73,10 @@ export default {
 
     li {
         display: inline-block;
+        padding: 0 25px;
+        cursor: pointer;
     }
     img {
         width: 100%;
-    }
-    .moveable {
-        z-index: 15;
-        position: relative;
-    }
-    .moveable:hover {
-        z-index: 9999;
-    }
-    .moveable.active {
-        position: fixed;
-        margin-top: 0 !important;
-    }
-
-
-    .moveable.active img {
-        transition: all 0.3s ease-in-out;
-        transform-origin: center center;
-    }
-
-    .moveable.active img.tapped {
-        transform: rotate(90deg);
-        opacity: 0.5;
-    }
-
-    .moveable.active img.tapped:hover {
-        opacity: 1;
-    }
-
-    .theme--dark.v-sheet {
-        background-color: transparent;
     }
 </style>

@@ -2,25 +2,34 @@
 	<v-app dark>
         <div v-bind:class="size">
 			<div dark class="gamepad" v-bind:style="{ backgroundImage: 'url(' + settings.playmat + ')' }">
-				<div class="library">
+				<div class="library">					
+					<div class="deck-list">
+						<div :class="{ active: showLibraryList }">
+						<span @click="showLibrary()">{{ currentDeck }} <unicon name="angle-down" /></span>
+						<ul class="all-libraries">
+							<li class="library-decks" v-for="library in alllibraries" :key="library.active"> 
+								<a v-bind:href="'/' + library.name" v-if="!library.active">{{ library.name }}</a>
+							</li>
+						</ul>
+						</div>
+					</div>
 					<Search v-on:search-cards="searchData" />
 					<div class="library-tools">
 						<Result :error="error" :cards="cards" />
                         <div class="result"  v-if="cards.length > 0" >
-                        <span style="color: lightgreen;">Card has been found</span>
-						<button @click="SaveLibrary(cards)">Add to library?</button>
+                        	<span style="color: lightgreen;">Card has been found</span>
+							<button @click="SaveLibrary(cards)">Add to library?</button>
                         </div>
 					</div>
 					<div class="library-list">
-                            <Card v-for="card in library" :key="card.id"
+                            <Card v-for="card in library" 
+								:key="card.id"
                                 :id="card.id"
                                 :name="card.name"
                                 :image="card.image"
                             >
                             </Card>
 					</div>
-                            <LandMenu>
-                            </LandMenu>
 				</div>
 				<div class="battlefield">
                     <div class="settings">
@@ -42,6 +51,9 @@
                             >
                             </Card>
                         </figure>
+						
+                            <LandMenu>
+                            </LandMenu>
                     </div>
 				</div>
 				<div class="special-zone">
@@ -115,12 +127,38 @@ export default {
             playmat: '',
 			size: 'normal',
 			commanderdamages: [],
-			commanderid: 0
+			commanderid: 0,
+			alllibraries: [],
+			currentDeck: this.$router.app._route.params.library,
+			showLibraryList: false
 		}
 	},
 	created() {
 	},
 	methods: {
+		showLibrary() {
+			if(this.showLibraryList == false) {
+				this.showLibraryList = true
+			}
+			else {
+				this.showLibraryList = false
+			}
+		},
+		getLibraries() {
+			libraryRef.get().then((libraries) => {
+				libraries.forEach((library) => {
+					if(library.exists) {
+						if(this.$router.app._route.params.library != library.id) {
+							let libraryArray = {
+								name: library.id,
+								active: false
+							}
+							this.alllibraries.push(libraryArray)	
+						}
+					}
+				})
+			})
+		},
 		AddCommander() {
 			let CommanderArray = {
 				id: this.commanderid,
@@ -260,8 +298,11 @@ export default {
 	firestore() {
 		return {
             library: libraryRef.doc(this.$router.app._route.params.library).collection("cards").orderBy("name"),
-            settings: libraryRef.doc(this.$router.app._route.params.library)
+			settings: libraryRef.doc(this.$router.app._route.params.library),
 		}
+	},
+	mounted() {
+		this.getLibraries();
 	}
 };
 </script>
@@ -425,6 +466,10 @@ export default {
 		font-size: 20px;
 	}
 
+	span.commanderdamage {
+		cursor:
+	}
+
 	.commander-damage {
 		display: grid;
 		grid-template-columns: 1fr 50px;
@@ -437,8 +482,86 @@ export default {
 		width: auto;
 		max-width: 75px;
 	}
+
+	.basic-lands {
+		position: fixed;
+		top: 93vh;
+		width: 100%;
+		text-align: center;
+		transform: translate(-50%, -50%);
+		left: 50%;
+		z-index: 9999;
+	}
 	
 	.commander-damage-wrapper > button {
 		min-width: 250px
+	}
+
+	.all-libraries {
+		list-style: none;
+		padding: 0;
+		margin: 0;
+	}
+
+	.all-libraries a {
+		color: inherit;
+		text-decoration: none;
+	}
+
+	.deck-list {
+		position: relative;
+	}
+
+	.deck-list span {
+		border: 2px solid #FFF;
+		width: 100%;
+		display: inline-block;
+		padding: 5px 15px;
+		transition: 0.3s ease-in-out;
+		font-size: 15px;
+		cursor: pointer;
+		position: relative;
+	}
+
+	.deck-list .active span,
+	.deck-list:hover span {
+		background-color: #FFF;
+		color: #222;
+		border-bottom: 2px solid #222;
+	}
+
+	.deck-list .unicon {
+		position: absolute;
+		right: 4px;
+		top: 4px;
+		fill: #FFF;
+		transition: 0.3s ease-in-out;
+	}
+
+	.deck-list .active .unicon {
+		fill: #222;
+	}
+	
+
+	.deck-list ul {
+		position: absolute;
+		background-color: #FFF;
+		color: #222;
+		width: 100%;
+		z-index: 9999;
+		padding: 10px 0;
+
+		pointer-events: none;
+		opacity: 0;
+	}
+
+
+	.deck-list .active ul {
+		pointer-events: all;
+		opacity: 1;
+	}
+
+	.deck-list ul li {
+		padding: 3px 15px;
 	}
 </style>

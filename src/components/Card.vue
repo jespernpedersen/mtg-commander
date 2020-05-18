@@ -4,13 +4,16 @@
         v-bind="moveable"
         @drag="handleDrag"
     >
-        <figure @click="TapUntap($event, id)">
-            <img v-if="!type" v-bind:src="image" :title="name" :class="{ tapped : tappedCard == true }" />
+        <figure v-if="!type" @click="TapUntapCard($event, id)">
+            <img v-bind:src="image" :title="name" :class="{ tapped : tappedCard == true }" /> 
+        </figure>
+        <!-- Basic Land -->
+        <figure v-if="type" @click="TapUntapLand($event, id)">
             <img v-if="type == 'white'" src="./../assets/basiclands/plains.png" :class="{ tapped : tappedCard == true }" />
             <img v-if="type == 'blue'" src="./../assets/basiclands/island.png" :class="{ tapped : tappedCard == true }"/>
             <img v-if="type == 'black'" src="./../assets/basiclands/swamp.png" :class="{ tapped : tappedCard == true }"/>
             <img v-if="type == 'red'" src="./../assets/basiclands/mountain.png" :class="{ tapped : tappedCard == true }"/>
-            <img v-if="type == 'green'" src="./../assets/basiclands/forest.png" :class="{ tapped : tappedCard == true }"/>  
+            <img v-if="type == 'green'" src="./../assets/basiclands/forest.png" :class="{ tapped : tappedCard == true }"/> 
         </figure>
     </Moveable>
 </template>
@@ -43,7 +46,7 @@ export default {
         tappedCard: false
   }),
   methods: {
-    TapUntap(e, id) {
+    TapUntapCard(e, id) {
         if (e.shiftKey) {
             if(this.tappedCard == true) {
                 this.tappedCard = false
@@ -58,7 +61,20 @@ export default {
             libraryRef.doc(this.$router.app._route.params.library).collection("cards").doc(String(id)).delete()
         }
     },
-    DeleteCard(id) {
+    TapUntapLand(e, id) {
+        if (e.shiftKey) {
+            if(this.tappedCard == true) {
+                this.tappedCard = false
+            }
+            else {
+                this.tappedCard = true
+            }
+        }
+        // Not pressing shift
+        else if(e.ctrlKey) {
+            console.log(this.$parent.$parent.basiclands)
+            this.$parent.$parent.basiclands[id]
+        }
     },
     IncreaseIndex() {
         this.cardIndex++;
