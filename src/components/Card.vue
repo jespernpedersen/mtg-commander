@@ -4,7 +4,10 @@
         v-bind="moveable"
         @drag="handleDrag"
     >
-        <figure v-if="!type" @click="TapUntapCard($event, id)">
+        <figure v-if="!type && !isToken" @click="TapUntapCard($event, id)">
+            <img v-bind:src="image" :title="name" :class="{ tapped : tappedCard == true }" /> 
+        </figure>
+        <figure v-if="isToken" @click="AddToken(name, image)">
             <img v-bind:src="image" :title="name" :class="{ tapped : tappedCard == true }" /> 
         </figure>
         <!-- Basic Land -->
@@ -26,7 +29,7 @@ import { libraryRef } from '@/../firebase/db.js'
 
 export default {
 	name: 'Card',
-    props: ['image', 'name', 'id', 'type', 'commander'],
+    props: ['image', 'name', 'id', 'type', 'commander', 'isToken'],
     components: {
 		Moveable
     },
@@ -46,6 +49,9 @@ export default {
         tappedCard: false
   }),
   methods: {
+    AddToken(name, image) {
+        this.$parent.$parent.AddToken(name, image)
+    },
     TapUntapCard(e, id) {
         if (e.shiftKey) {
             if(this.tappedCard == true) {

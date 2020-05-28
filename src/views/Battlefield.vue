@@ -28,8 +28,23 @@
                                 :name="card.name"
                                 :image="card.image"
 								:commander="false"
+								:isToken="false"
                             >
                             </Card>
+					</div>
+					<div class="token-library">
+						<div class="token-list">
+							<Card v-for="token in tokenLibrary"
+								:key="token.id"
+								:id="token.id"
+								:name="token.name"
+								:image="token.image"
+								:commander="false"
+								:isToken="false"
+								>
+							</Card>
+						</div>
+						<button @click="showTokenSearch()" class="token-button">Search new tokens</button>
 					</div>
 				</div>
 				<div class="battlefield">
@@ -50,6 +65,7 @@
                                 :type="basicland.landType"
                                 :id="i"
 								:commander="false"
+								:isToken="false"
                             >
                             </Card>
                         </figure>
@@ -58,7 +74,7 @@
                     </div>
 				</div>
 				<div class="special-zone">
-						<div class="commander-damage-wrapper" v-if="commander.length > 0">
+						<div class="commander-damage-wrapper" v-if="hasSearchedCommander">
 							<div class="commander-damages" v-if="commanderdamages">
 								<div class="commander-damage" v-for="(commanderdamage, i) in commanderdamages" :key="i">
 									<input type="text" v-model="commanderdamage.name" />
@@ -72,7 +88,7 @@
 					</div>
 					<div class="command-zone">
 						<h2>COMMAND ZONE</h2>
-						<div id="search-wrapper"  v-if="!hasSearchedCommander">
+						<div id="search-wrapper">
 							<Search v-on:search-cards="searchCommander" />
 						</div>
 						<div class="commander" v-if="settings.commander">
@@ -81,6 +97,7 @@
                                 :name="settings.commander.name"
                                 :image="settings.commander.image"
 								:commander="true"
+								:isToken="false"
                             >
                             </Card>
 						</div>
@@ -90,6 +107,7 @@
                                 :name="settings.commander.name"
                                 :image="settings.commander.image"
 								:commander="true"
+								:isToken="false"
                             >
                             </Card>
 						</div>
@@ -100,11 +118,29 @@
 				</div>
 			</div>
         </div>
+		<div class="token-modal" v-if="showTokenList">
+			<div class="modal-content">
+				<h3>Tokens</h3>
+				<SearchToken v-on:search-cards="searchTokenData"/>
+				<div class="token-gallery" v-if="tokenList[0]">
+					<Card v-for="token in tokenList" :key="token.id"
+						:id="token.id"
+						:name="token.name"
+						:image="token.image"
+						:commander="false"
+						:isToken="true"
+					>
+					</Card>
+				</div>
+				<span class="close-modal" @click="hideTokenSearch()">Close</span>
+			</div>
+		</div>
 	</v-app>
 </template>
 
 <script>
 import Search from '@/components/Search'
+import SearchToken from '@/components/SearchToken'
 import Result from '@/components/Result'
 import CommanderResult from '@/components/CommanderResult'
 import Card from '@/components/Card'
@@ -122,6 +158,7 @@ export default {
 	name: 'App',
 	components: {
 		Search,
+		SearchToken,
 		Result,
         CommanderResult, 
         Card,
@@ -133,6 +170,8 @@ export default {
 			cardResults: [],
 			commander: [],
 			cards: [],
+			tokenLibrary: [],
+			tokenList: [],
 			error: "", 
 			symbols: [],
             library: [],
@@ -146,7 +185,8 @@ export default {
 			alllibraries: [],
 			currentDeck: this.$router.app._route.params.library,
 			showLibraryList: false, 
-			settings: []
+			settings: [],
+			showTokenList: false
 		}
 	},
 	created() {
@@ -159,6 +199,23 @@ export default {
 			else {
 				this.showLibraryList = false
 			}
+		},
+		showTokenSearch() {
+			this.showTokenList = true;
+		},
+		hideTokenSearch() {
+			this.showTokenList = false;
+		},
+		AddToken(name, image) {
+			let tokenArray = {
+				name: name,
+				image: image
+			}
+			this.tokenLibrary.push(tokenArray)
+			libraryRef.doc(this.$router.app._route.params.library).collection("tokens").doc(name).set({
+				name: name,
+				image: image
+			})
 		},
 		getLibraries() {
 			libraryRef.get().then((libraries) => {
@@ -183,6 +240,7 @@ export default {
 					let docData = doc.data()
 					if(docData.commander.name != undefined) {
 						this.lifecount = 40;
+						this.hasSearchedCommander = true;
 					}
 				}
 			})
@@ -297,6 +355,41 @@ export default {
 
 			})
 		},
+		searchTokenData(searchTerm) {
+			const url = 'https://api.scryfall.com//cards/search?q=';
+			const isToken = '+%2B%2Bis%3Atoken'
+			this.tokenList = []
+			this.error = this.post = null
+			this.loading = true
+			let self = this
+			fetch(url + searchTerm + isToken)
+			.then(res => {
+				if (res.status === 200) {
+					return res.json()
+				} else {
+					self.error = "No results found";
+				}
+			})
+			.then(response => {
+				let tokensData = {
+					name: response.name,
+					image: response.image_uris
+				}
+				response.data.forEach((token) => {
+					let tokenArray = {
+						id: token.mtgo_id,
+						name: token.name,
+						image: token.image_uris.png,
+					}
+					self.tokenList.push(tokenArray);
+				})
+       		})
+			.catch(error => {
+				console.error('Error:', error);
+
+			})
+		},
+
 		searchCommander(searchTerm) {
 			const url = 'https://api.scryfall.com/cards/named?fuzzy=';
 			this.commander = []
@@ -335,7 +428,8 @@ export default {
 	},
 	firestore() {
 		return {
-            library: libraryRef.doc(this.$router.app._route.params.library).collection("cards").orderBy("name"),
+			library: libraryRef.doc(this.$router.app._route.params.library).collection("cards").orderBy("name"),
+			tokenLibrary: libraryRef.doc(this.$router.app._route.params.library).collection("tokens").orderBy("name"),
 			settings: libraryRef.doc(this.$router.app._route.params.library),
 			hasCommander: this.checkCommander()
 		}
@@ -395,7 +489,12 @@ export default {
 	.library-list {
 		overflow-y: scroll;
 		height: calc(100% - 120px);
-    	max-height: 82vh;
+    	max-height: 55vh;
+	}
+
+	.token-list {
+		overflow-y: scroll;
+    	max-height: 20vh;		
 	}
 
     .gamepad {
@@ -404,13 +503,15 @@ export default {
 		background-image: url('https://i.imgur.com/xuOFwIB.png')
     }
 
-    .library-list {
+    .library-list,
+	.token-list {
         padding-right: 15px;
 		padding-top: 127%;
 	}
 
 
-	.library-list .card {
+	.library-list .card,
+	.token-list .card {
 		margin-top: -127%;
 	}
 
@@ -610,5 +711,63 @@ export default {
 
 	.deck-list ul li {
 		padding: 3px 15px;
+	}
+
+
+	.token-modal {
+		content:"";
+		position: absolute;
+		width: 100vw;
+		height: 100vh;
+		background-color: rgba(0,0,0, 0.4);
+		left: 0;
+		top: 0;
+		z-index: 99999999999;
+	}
+
+	.token-modal .modal-content {
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+		height: 60vh;
+		width: 60vw;
+		background-color: rgba(255, 255, 255, 0.4);
+		padding: 10px 60px;
+	}
+
+	.token-modal h3 {
+		text-align: center;
+		font-size: 40px;
+		padding-top: 15px;
+	}
+
+	.token-gallery {
+		margin-top: 20px;
+		display: grid;
+		grid-template-columns: repeat(5, 1fr);
+		grid-gap: 30px;
+		overflow-y: scroll;
+		max-height: calc(60vh - 173px);
+		padding: 0 15px;
+	}
+
+	.token-library {
+		margin-top: 25px;
+	}
+
+	.close-modal {
+		top: 30px;
+		right: 30px;
+		position: absolute;
+		font-size: 18px;
+		cursor: pointer;
+	}
+
+	.token-button {
+		position: relative;
+		z-index: 99999999999;
+		margin-top: 10px;
+		margin-left: 50px;
 	}
 </style>
