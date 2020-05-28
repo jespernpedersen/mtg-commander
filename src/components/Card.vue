@@ -26,7 +26,7 @@ import { libraryRef } from '@/../firebase/db.js'
 
 export default {
 	name: 'Card',
-    props: ['image', 'name', 'id', 'type'],
+    props: ['image', 'name', 'id', 'type', 'commander'],
     components: {
 		Moveable
     },
@@ -78,10 +78,15 @@ export default {
     IncreaseIndex() {
         this.cardIndex++;
     },
-    handleDrag({ target, left, top }) {
+    handleDrag({ target, left, right, top }) {
       target.classList.add("active");
       target.style.zIndex = this.cardIndex;
-      target.style.left = `${left}px`;
+      if(this.commander == false) {
+        target.style.left = `${left}px`;
+      }
+      else {
+          target.style.right = `${right}px`;
+      }
       target.style.top = `${top}px`;
     },
   },

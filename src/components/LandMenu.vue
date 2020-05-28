@@ -1,11 +1,11 @@
 <template> 
     <div class="basic-lands">
         <ul>
-            <li @click="AddLand('white')">Plains</li>
-            <li @click="AddLand('blue')">Island</li>
-            <li @click="AddLand('black')">Swamp</li>
-            <li @click="AddLand('red')">Mountain</li>
-            <li @click="AddLand('green')">Forest</li>
+            <li @click="AddLand('white')"><img src="./../assets/symbols/mana-w.png" title="Plains"/></li>
+            <li @click="AddLand('blue')"><img src="./../assets/symbols/mana-u.png" title="Island"/></li>
+            <li @click="AddLand('black')"><img src="./../assets/symbols/mana-b.png" title="Swamp"/></li>
+            <li @click="AddLand('red')"><img src="./../assets/symbols/mana-r.png" title="Mountain"/></li>
+            <li @click="AddLand('green')"><img src="./../assets/symbols/mana-g.png" title="Forest"/></li>
         </ul>
     </div>
 </template>
@@ -73,10 +73,10 @@ export default {
 
     li {
         display: inline-block;
-        padding: 0 25px;
+        padding: 0 15px;
         cursor: pointer;
     }
     img {
-        width: 100%;
+        max-width: 50px;
     }
 </style>

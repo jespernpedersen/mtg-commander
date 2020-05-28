@@ -27,6 +27,7 @@
                                 :id="card.id"
                                 :name="card.name"
                                 :image="card.image"
+								:commander="false"
                             >
                             </Card>
 					</div>
@@ -48,16 +49,15 @@
                             <Card
                                 :type="basicland.landType"
                                 :id="i"
+								:commander="false"
                             >
                             </Card>
                         </figure>
-						
-                            <LandMenu>
-                            </LandMenu>
+                        <LandMenu>
+                        </LandMenu>
                     </div>
 				</div>
 				<div class="special-zone">
-					
 						<div class="commander-damage-wrapper" v-if="commander.length > 0">
 							<div class="commander-damages" v-if="commanderdamages">
 								<div class="commander-damage" v-for="(commanderdamage, i) in commanderdamages" :key="i">
@@ -73,14 +73,26 @@
 					<div class="command-zone">
 						<h2>COMMAND ZONE</h2>
 						<div id="search-wrapper"  v-if="!hasSearchedCommander">
-							<Search v-on:search-cards="searchCommander"/>
+							<Search v-on:search-cards="searchCommander" />
 						</div>
-                            <Card v-for="(card, i) in commander" :key="i"
-                                :id="card.id"
-                                :name="card.name"
-                                :image="card.image_uris.png"
+						<div class="commander" v-if="settings.commander">
+                            <Card :key="i" 
+                                :id="settings.commander.id"
+                                :name="settings.commander.name"
+                                :image="settings.commander.image"
+								:commander="true"
                             >
                             </Card>
+						</div>
+						<div class="commander" v-if="!settings.commander">
+                            <Card v-for="(card, i) in commander" :key="i" 
+                                :id="settings.commander.id"
+                                :name="settings.commander.name"
+                                :image="settings.commander.image"
+								:commander="true"
+                            >
+                            </Card>
+						</div>
 					</div>
 					<div class="graveyard">
 						<h2>GRAVEYARD</h2>
@@ -103,6 +115,9 @@ import { libraryRef } from '@/../firebase/db.js'
 
 let library = [];
 
+
+let newLifeCount = 20
+
 export default {
 	name: 'App',
 	components: {
@@ -114,11 +129,11 @@ export default {
 	},
 	data () {
 		return {
-			lifecount: 20,
+			lifecount: newLifeCount,
 			cardResults: [],
 			commander: [],
 			cards: [],
-			error: "",
+			error: "", 
 			symbols: [],
             library: [],
             basiclands: [],
@@ -130,7 +145,8 @@ export default {
 			commanderid: 0,
 			alllibraries: [],
 			currentDeck: this.$router.app._route.params.library,
-			showLibraryList: false
+			showLibraryList: false, 
+			settings: []
 		}
 	},
 	created() {
@@ -159,6 +175,18 @@ export default {
 				})
 			})
 		},
+		checkCommander() {
+			let this_library = libraryRef.doc(this.$router.app._route.params.library)
+
+			this_library.get().then((doc) => {
+				if(doc.exists) {
+					let docData = doc.data()
+					if(docData.commander.name != undefined) {
+						this.lifecount = 40;
+					}
+				}
+			})
+		},
 		AddCommander() {
 			let CommanderArray = {
 				id: this.commanderid,
@@ -172,7 +200,7 @@ export default {
             this.size = view;
 		},
 		SavePlaymat(url) {
-			libraryRef.doc(this.$router.app._route.params.library).set({
+			libraryRef.doc(this.$router.app._route.params.library).update({
 				playmat: url
 			})
 		},
@@ -286,12 +314,22 @@ export default {
 			.then(response => {
 				var cardsData = response
 				self.commander = new Array(cardsData);
+
+				let commanderArray = {
+					id: self.commander[0].oracle_id,
+					name: self.commander[0].name,
+					image: self.commander[0].image_uris.png
+				}
+				libraryRef.doc(this.$router.app._route.params.library).update({
+					commander: commanderArray
+				})
        		})
 			.catch(error => {
 				console.error('Error:',error);
 
 			})
 			this.hasSearchedCommander = true;
+			this.lifecount = 40;
 
 		},
 	},
@@ -299,10 +337,11 @@ export default {
 		return {
             library: libraryRef.doc(this.$router.app._route.params.library).collection("cards").orderBy("name"),
 			settings: libraryRef.doc(this.$router.app._route.params.library),
+			hasCommander: this.checkCommander()
 		}
 	},
 	mounted() {
-		this.getLibraries();
+		this.getLibraries()
 	}
 };
 </script>

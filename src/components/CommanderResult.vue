@@ -1,22 +1,22 @@
 <template>
-
-						<v-layout row wrap>
-							<v-flex
-							v-for="command in commander"
-							:key="command.mtgo_id"
-							d-flex
-							>
-							<v-card flat tile class="d-flex">
-                                <Moveable
-                                    class="moveable commander"
-                                    v-bind="moveable"
-                                    @drag="handleDrag"					
-                                >
-								    <img v-for="command in commander" :key="command.oracle_id" id="commander" :src="command.image_uris.png" />
-                                </Moveable>
-							</v-card>
-						</v-flex>
-					</v-layout>
+  <v-layout row wrap>
+		<v-flex
+			  v-for="command in commander"
+				:key="command.mtgo_id"
+				d-flex
+		>
+			<v-card flat tile class="d-flex">
+        <Moveable
+          class="moveable"
+          v-bind="moveable"
+          @drag="handleDrag"					
+        >
+          {{ isCommander }}
+					<img v-for="command in commander" :key="command.oracle_id" id="commander" :src="command.image_uris.png" />
+        </Moveable>
+			</v-card>
+		</v-flex>
+	</v-layout>
 </template>
 
 <script>
@@ -24,7 +24,7 @@ import Moveable from 'vue-moveable';
 
 export default {
 	name: 'CommanderResult',
-    props: ['commander'],
+    props: ['commander', 'isCommander'],
     components: {
 		Moveable
     },
@@ -55,9 +55,8 @@ export default {
         else {
         }
     },
-    handleDrag({ target, left, top }) {
-      console.log('onDrag left, top', left, top);
-      target.style.left = `${left}px`;
+    handleDrag({ target, right, top }) {
+      target.style.right = `${right}px`;
       target.style.top = `${top}px`;
     },
   },
