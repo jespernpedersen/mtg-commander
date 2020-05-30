@@ -489,7 +489,7 @@ export default {
 	.library-list {
 		overflow-y: scroll;
 		height: calc(100% - 120px);
-    	max-height: 55vh;
+    	max-height: 40vh;
 	}
 
 	.token-list {

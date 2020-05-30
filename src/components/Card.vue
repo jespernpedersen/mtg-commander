@@ -5,6 +5,8 @@
         @drag="handleDrag"
     >
         <figure v-if="!type && !isToken" @click="TapUntapCard($event, id)">
+            <span v-if="!showModifier" class="counter" @click="AddCounter()">Add Counter</span>
+            <span v-if="showModifier" class="modifier"  v-on:click="IncreaseCounter($event)" v-on:click.right="DecreaseCounter($event)">{{ modifiersign }}{{ modifier }}</span>
             <img v-bind:src="image" :title="name" :class="{ tapped : tappedCard == true }" /> 
         </figure>
         <figure v-if="isToken" @click="AddToken(name, image)">
@@ -12,6 +14,9 @@
         </figure>
         <!-- Basic Land -->
         <figure v-if="type" @click="TapUntapLand($event, id)">
+
+            <span v-if="!showModifier" class="counter" @click="AddCounter()">Add Counter</span>
+            <span v-if="showModifier" class="modifier"  v-on:click="IncreaseCounter($event)" v-on:click.right="DecreaseCounter($event)">{{ modifiersign }}{{ modifier }}</span>
             <img v-if="type == 'white'" src="./../assets/basiclands/plains.png" :class="{ tapped : tappedCard == true }" />
             <img v-if="type == 'blue'" src="./../assets/basiclands/island.png" :class="{ tapped : tappedCard == true }"/>
             <img v-if="type == 'black'" src="./../assets/basiclands/swamp.png" :class="{ tapped : tappedCard == true }"/>
@@ -23,6 +28,7 @@
 
 <script>
 import Moveable from 'vue-moveable';
+
 
 // Data
 import { libraryRef } from '@/../firebase/db.js'
@@ -46,9 +52,50 @@ export default {
             throttleRotate: 0,
         },
         cardIndex: 16,
-        tappedCard: false
+        tappedCard: false,
+        modifier: null,
+        showModifier: false,
+        modifiersign: null
   }),
   methods: {
+    AddCounter() {
+        this.showModifier = true
+        this.modifier = 0;
+    },
+    IncreaseCounter(e) {
+        if (e.shiftKey) {
+            this.modifier += 5;
+        }
+        else if(e.altKey) {
+            this.showModifier = false
+            this.modifier = 0;
+        }
+        else {
+            this.modifier++;
+        }
+
+        if(this.modifier > 0) {
+            this.modifiersign = "+"
+        }
+        else {
+            this.modifiersign = null
+        }
+    },
+    DecreaseCounter(e) {
+        e.preventDefault();
+        if (e.shiftKey) {
+            this.modifier -= 5;
+        }
+        else {
+            this.modifier--;
+        }
+        if(this.modifier > 0) {
+            this.modifiersign = "+"
+        }
+        else {
+            this.modifiersign = null
+        }
+    },
     AddToken(name, image) {
         this.$parent.$parent.AddToken(name, image)
     },
@@ -132,6 +179,41 @@ export default {
 
     .theme--dark.v-sheet {
         background-color: transparent;
+    }
+
+    /* Counter */
+    .counter {
+        position: absolute;
+        top: 35%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        opacity: 0;
+        pointer-events: none;
+        cursor: pointer;
+    }
+    .moveable.active:hover .counter {
+        opacity: 1;
+        pointer-events: all;
+    }
+
+    .modifier {
+        position: absolute;
+        top: 35%;
+        left: 50%;
+        transform: translate(-50%, -50%);     
+        font-size: 26px;
+        width: 50px;
+        height: 50px;
+        background-color: #FFF;
+        border-radius: 100%;
+        color: #000;
+        display: flex;
+        align-items: center;
+        justify-content: center;  
+        cursor: pointer;
+        z-index: 1000;
+        padding-top: 2px;
+        border: 2px solid #222;
     }
 
     
