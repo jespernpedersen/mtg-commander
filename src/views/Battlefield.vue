@@ -45,6 +45,14 @@
 							</Card>
 						</div>
 						<button @click="showTokenSearch()" class="token-button">Search new tokens</button>
+						
+						<div class="history">
+                        	<div v-for="(message, i) in messages" :key="i" >
+								<div class="message">
+									<strong class="owner">{{ message.owner }}: </strong><span>{{ message.text }}</span>
+								</div>
+							</div>
+						</div>
 					</div>
 				</div>
 				<div class="battlefield">
@@ -147,7 +155,7 @@ import Card from '@/components/Card'
 import LandMenu from '@/components/LandMenu'
 
 // Data
-import { libraryRef } from '@/../firebase/db.js'
+import { libraryRef, messageRef } from '@/../firebase/db.js'
 
 let library = [];
 
@@ -170,6 +178,7 @@ export default {
 			cardResults: [],
 			commander: [],
 			cards: [],
+			messages: [],
 			tokenLibrary: [],
 			tokenList: [],
 			error: "", 
@@ -431,6 +440,7 @@ export default {
 			library: libraryRef.doc(this.$router.app._route.params.library).collection("cards").orderBy("name"),
 			tokenLibrary: libraryRef.doc(this.$router.app._route.params.library).collection("tokens").orderBy("name"),
 			settings: libraryRef.doc(this.$router.app._route.params.library),
+			messages: messageRef.orderBy('timeStamp'),
 			hasCommander: this.checkCommander()
 		}
 	},
@@ -606,10 +616,6 @@ export default {
 		font-size: 20px;
 	}
 
-	span.commanderdamage {
-		cursor:
-	}
-
 	.commander-damage {
 		display: grid;
 		grid-template-columns: 1fr 50px;
@@ -764,10 +770,39 @@ export default {
 		cursor: pointer;
 	}
 
+	.token-library {
+		position: relative;
+	}
+
 	.token-button {
 		position: relative;
 		z-index: 99999999999;
 		margin-top: 10px;
 		margin-left: 50px;
+	}
+	.history {
+		height: 100px;
+		background-color: rgba(255, 255, 255, 0.7);
+		padding: 20px;
+		overflow-y: scroll;
+		position: absolute;
+		bottom: 45px;
+		left: 290px;
+		width: 120%;
+		color: #000;
+		overflow-x: hidden;
+		display: flex;
+		align-items: flex-end;
+		flex-direction: column;
+		justify-content: center;
+	}
+
+	.history > div {
+		width: 100%;
+	}
+
+	.history .message span {
+		text-align: left;
+		opacity: 0.5;
 	}
 </style>
