@@ -405,6 +405,7 @@ export default {
 			this.error = this.post = null
 			this.loading = true
 			let self = this
+			
 			fetch(url + searchTerm)
 			.then(res => {
 				if (res.status === 200) {
@@ -422,7 +423,8 @@ export default {
 					name: self.commander[0].name,
 					image: self.commander[0].image_uris.png
 				}
-				libraryRef.doc(this.$router.app._route.params.library).update({
+				libraryRef.doc(this.$router.app._route.params.library).set({
+					playmat: this.settings.playmat,
 					commander: commanderArray
 				})
        		})
