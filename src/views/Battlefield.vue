@@ -299,36 +299,79 @@ export default {
 		SaveLibrary(cards) {
 			cards.forEach((card) => {
 				let card_name = card.name
-				let card_image = card.image_uris.png
-				if(this.library.length > 0) {
-					libraryRef.doc(this.$router.app._route.params.library).collection("cards").orderBy("id", "desc").limit(1).get().then((querySnapshot) => {
-						querySnapshot.forEach((doc) => {
-							if(doc.exists) {
-								let cardData = doc.data()
-								let card_id = cardData.id + 1;
 
-								libraryRef.doc(this.$router.app._route.params.library).collection("cards").doc(String(card_id)).set({
-									id: card_id,
-									name: card_name,
-									image: card_image
-								})
-							}
-							else {					
-							}
+				if(card.card_faces) {
+					let card_image = card.card_faces[0].image_uris.png
+					let card_image_alt = card.card_faces[1].image_uris.png
 
+					if(this.library.length > 0) {
+						libraryRef.doc(this.$router.app._route.params.library).collection("cards").orderBy("id", "desc").limit(1).get().then((querySnapshot) => {
+							querySnapshot.forEach((doc) => {
+								if(doc.exists) {
+									let cardData = doc.data()
+									let card_id = cardData.id + 1;
+
+									libraryRef.doc(this.$router.app._route.params.library).collection("cards").doc(String(card_id)).set({
+										id: card_id,
+										name: card_name,
+										image: card_image,
+										flip: true,
+										alternative_image: card_image_alt
+									})
+								}
+								else {					
+								}
+
+							})
+						}).catch(function(error) {
+							console.log("Error occurred")
 						})
-					}).catch(function(error) {
-						console.log("Error occurred")
-					})
+					}
+					else {
+						let card_id = 0
+						libraryRef.doc(this.$router.app._route.params.library).collection("cards").doc(String(card_id)).set({
+							id: card_id,
+							name: card_name,
+							image: card_image,
+							flip: true,
+							alternative_image: card_image_alt
+						})					
+					}
 				}
 				else {
-					let card_id = 0
-					libraryRef.doc(this.$router.app._route.params.library).collection("cards").doc(String(card_id)).set({
-						id: card_id,
-						name: card_name,
-						image: card_image
-					})					
+					let card_image = card.image_uris.png
+					if(this.library.length > 0) {
+						libraryRef.doc(this.$router.app._route.params.library).collection("cards").orderBy("id", "desc").limit(1).get().then((querySnapshot) => {
+							querySnapshot.forEach((doc) => {
+								if(doc.exists) {
+									let cardData = doc.data()
+									let card_id = cardData.id + 1;
+
+									libraryRef.doc(this.$router.app._route.params.library).collection("cards").doc(String(card_id)).set({
+										id: card_id,
+										name: card_name,
+										image: card_image
+									})
+								}
+								else {					
+								}
+
+							})
+						}).catch(function(error) {
+							console.log("Error occurred")
+						})
+					}
+					else {
+						let card_id = 0
+						libraryRef.doc(this.$router.app._route.params.library).collection("cards").doc(String(card_id)).set({
+							id: card_id,
+							name: card_name,
+							image: card_image
+						})					
+					}
 				}
+				console.log(card_image)
+
 			})
 
 		},
