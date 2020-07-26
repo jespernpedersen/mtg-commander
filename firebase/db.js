@@ -13,5 +13,6 @@ const firebaseApp = firebase.initializeApp({
 const db = firebaseApp.firestore()
 
 const libraryRef = db.collection("library")
+const messageRef = db.collection("messages")
 
-export { libraryRef }
+export { libraryRef, messageRef, firebase }
