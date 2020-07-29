@@ -109,7 +109,7 @@ export default {
             }
         }
         // Not pressing shift
-        else if(e.ctrlKey) {
+        else if(e.altKey) {
             console.log(id)
             libraryRef.doc(this.$router.app._route.params.library).collection("cards").doc(String(id)).delete()
         }
