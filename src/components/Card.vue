@@ -4,17 +4,18 @@
         v-bind="moveable"
         @drag="handleDrag"
     >
-        <figure v-if="!type && !isToken" @click="TapUntapCard($event, id)">
+        <!-- Normal Card -->
+        <figure v-if="!type && !isToken && !flip" @click="TapUntapCard($event, id)">
             <span v-if="!showModifier" class="counter" @click="AddCounter()">Add Counter</span>
             <span v-if="showModifier" class="modifier"  v-on:click="IncreaseCounter($event)" v-on:click.right="DecreaseCounter($event)">{{ modifiersign }}{{ modifier }}</span>
             <img v-bind:src="image" :title="name" :class="{ tapped : tappedCard == true }" /> 
         </figure>
+        <!-- Token Template -->
         <figure v-if="isToken" @click="AddToken(name, image)">
             <img v-bind:src="image" :title="name" :class="{ tapped : tappedCard == true }" /> 
         </figure>
-        <!-- Basic Land -->
+        <!-- Basic Land Template -->
         <figure v-if="type" @click="TapUntapLand($event, id)">
-
             <span v-if="!showModifier" class="counter" @click="AddCounter()">Add Counter</span>
             <span v-if="showModifier" class="modifier"  v-on:click="IncreaseCounter($event)" v-on:click.right="DecreaseCounter($event)">{{ modifiersign }}{{ modifier }}</span>
             <img v-if="type == 'white'" src="./../assets/basiclands/plains.png" :class="{ tapped : tappedCard == true }" />
@@ -22,6 +23,22 @@
             <img v-if="type == 'black'" src="./../assets/basiclands/swamp.png" :class="{ tapped : tappedCard == true }"/>
             <img v-if="type == 'red'" src="./../assets/basiclands/mountain.png" :class="{ tapped : tappedCard == true }"/>
             <img v-if="type == 'green'" src="./../assets/basiclands/forest.png" :class="{ tapped : tappedCard == true }"/> 
+        </figure>
+        <!-- Flipable Card -->
+        <figure v-if="!type && !isToken && flip" @click="TapUntapCard($event, id)" class="flip-card" :class="{ isflipped : transformed == true }">
+            <div class="actions">
+                <span @click="transformCard($event, id)" class="transform-action">Transform</span>
+                <span v-if="!showModifier" class="counter" @click="AddCounter()">Add Counter</span>
+                <span v-if="showModifier" class="modifier"  v-on:click="IncreaseCounter($event)" v-on:click.right="DecreaseCounter($event)">{{ modifiersign }}{{ modifier }}</span>
+            </div>        
+            <div class="card-inner">
+                <div class="card-face face-back">
+                    <img v-bind:src="imagealt" :title="name" :class="{ tapped : tappedCard == true }" />
+                </div>
+                <div class="card-face face-front">
+                    <img v-bind:src="image" :title="name" :class="{ tapped : tappedCard == true }" /> 
+                </div>
+            </div>
         </figure>
     </Moveable>
 </template>
@@ -35,7 +52,7 @@ import { libraryRef } from '@/../firebase/db.js'
 
 export default {
 	name: 'Card',
-    props: ['image', 'name', 'id', 'type', 'commander', 'isToken'],
+    props: ['image', 'name', 'id', 'type', 'commander', 'isToken', 'flip', 'imagealt'],
     components: {
 		Moveable
     },
@@ -53,11 +70,20 @@ export default {
         },
         cardIndex: 16,
         tappedCard: false,
+        transformed: false,
         modifier: null,
         showModifier: false,
         modifiersign: null
   }),
   methods: {
+    transformCard(e, id) {
+        if(this.transformed == true) {
+            this.transformed = false
+        }
+        else if(this.transformed == false) {
+            this.transformed = true
+        }
+    },
     AddCounter() {
         this.showModifier = true
         this.modifier = 0;
@@ -110,8 +136,11 @@ export default {
         }
         // Not pressing shift
         else if(e.altKey) {
-            console.log(id)
             libraryRef.doc(this.$router.app._route.params.library).collection("cards").doc(String(id)).delete()
+        }
+        // Flip functionality
+        else if(e.ctrlKey) {
+            this.transformed = true
         }
     },
     TapUntapLand(e, id) {
@@ -124,7 +153,7 @@ export default {
             }
         }
         // Not pressing shift
-        else if(e.ctrlKey) {
+        else if(e.altKey) {
             this.$parent.$parent.basiclands.splice(id, 1)
         }
     },
@@ -225,12 +254,65 @@ export default {
     .small .moveable.active img {
         max-width: 160px;
     }
+    .small .moveable.active .flip-card {
+        width: 160px;
+    }
     .normal .basic-land .moveable img,
     .normal .moveable.active img {
         max-width: 202px;
     }
+    .normal .moveable.active .flip-card {
+        width: 202px;
+    }
     .big .basic-land .moveable img,
     .big .moveable.active img {
         max-width: 300px;
+    }
+    .big .moveable.active .flip-card {
+        width: 300px;
+    }
+    /* Flip Card */
+    .actions {
+        z-index: 9999;
+        position: relative;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+
+    .actions span.transform-action {
+        text-align: center;
+        position: relative;
+        top: -40px;
+        display: block;
+        width: 100%;
+        cursor: pointer;
+    }
+    .flip-card {
+        height: 282px;
+        width: 100%;
+        perspective: 600px;
+    }
+    .flip-card .card-inner {      
+        width: 100%;
+        height: 100%;
+        position: relative;
+        transition: transform 1s;
+        transform-style: preserve-3d;
+    }
+    .card-face {
+        position: absolute;
+        height: 100%;
+        width: 100%;
+        backface-visibility: hidden;
+    }
+    .isflipped .card-inner {      
+        transform: rotateY(180deg);
+    }
+    .isflipped .card-inner .face-front .tapped {
+        display: none;
+    }
+    .face-back {      
+        transform: rotateY( 180deg );
     }
 </style>

@@ -29,6 +29,8 @@
                                 :image="card.image"
 								:commander="false"
 								:isToken="false"
+								:flip="card.flip"
+								:imagealt="card.alternative_image"
                             >
                             </Card>
 					</div>
