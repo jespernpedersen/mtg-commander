@@ -272,7 +272,12 @@ export default {
         width: 300px;
     }
     /* Flip Card */
-    .actions {
+     .actions,
+     .face-back  {
+         display: none;
+     }
+    .moveable.active .actions {
+        display: block;
         z-index: 9999;
         position: relative;
         top: 50%;
@@ -280,7 +285,7 @@ export default {
         transform: translate(-50%, -50%);
     }
 
-    .actions span.transform-action {
+    .moveable.active .actions span.transform-action {
         text-align: center;
         position: relative;
         top: -40px;
@@ -288,31 +293,34 @@ export default {
         width: 100%;
         cursor: pointer;
     }
-    .flip-card {
+    .moveable.active .flip-card {
         height: 282px;
         width: 100%;
         perspective: 600px;
     }
-    .flip-card .card-inner {      
+    .moveable.active .flip-card .card-inner {      
         width: 100%;
         height: 100%;
         position: relative;
         transition: transform 1s;
         transform-style: preserve-3d;
     }
-    .card-face {
+    .moveable.active .face-back {
+        display: block;
+    }
+    .moveable.active .card-face {
         position: absolute;
         height: 100%;
         width: 100%;
         backface-visibility: hidden;
     }
-    .isflipped .card-inner {      
+    .moveable.active .isflipped .card-inner {      
         transform: rotateY(180deg);
     }
-    .isflipped .card-inner .face-front .tapped {
+    .moveable.active .isflipped .card-inner .face-front .tapped {
         display: none;
     }
-    .face-back {      
+    .moveable.active .face-back {      
         transform: rotateY( 180deg );
     }
 </style>
