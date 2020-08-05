@@ -169,7 +169,8 @@ export default {
         width: 100%;
         opacity: 0;
         transition: 0.3s ease-in-out;
-        position: absolute;
+        cursor: pointer;
+        text-shadow: 1px 1px 1px #000
     }
 
     .card:hover span {
@@ -235,8 +236,6 @@ export default {
     .back {      
         transform: rotateY( 180deg );
     }
-    
-
     .scrying .card-face {
         position: static;
     }
