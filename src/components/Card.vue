@@ -17,7 +17,7 @@
                 <img v-bind:src="image" :title="name" :class="{ tapped : tappedCard == true }" /> 
             </figure>
             <!-- Token Template -->
-            <figure v-if="isToken" class="token">
+            <figure v-if="isToken" class="token" @click="TapUntapCard($event, id)">
                 <span v-if="!showModifier" class="counter" @click="AddCounter($event)">Add Counter (CTRL-LClick)</span>
                 <span v-if="showModifier" class="modifier"  v-on:click="IncreaseCounter($event)" v-on:click.right="DecreaseCounter($event)">{{ modifiersign }}{{ modifier }}</span>
                 <img v-bind:src="image" :title="name" :class="{ tapped : tappedCard == true }" /> 
