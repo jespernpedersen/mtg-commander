@@ -1,46 +1,55 @@
 <template>
-    <Moveable
-        class="moveable card"
-        v-bind="moveable"
-        @drag="handleDrag"
-    >
-        <!-- Normal Card -->
-        <figure v-if="!type && !isToken && !flip" @click="TapUntapCard($event, id)">
-            <span v-if="!showModifier" class="counter" @click="AddCounter()">Add Counter</span>
-            <span v-if="showModifier" class="modifier"  v-on:click="IncreaseCounter($event)" v-on:click.right="DecreaseCounter($event)">{{ modifiersign }}{{ modifier }}</span>
-            <img v-bind:src="image" :title="name" :class="{ tapped : tappedCard == true }" /> 
-        </figure>
-        <!-- Token Template -->
-        <figure v-if="isToken" @click="AddToken(name, image)">
-            <img v-bind:src="image" :title="name" :class="{ tapped : tappedCard == true }" /> 
-        </figure>
-        <!-- Basic Land Template -->
-        <figure v-if="type" @click="TapUntapLand($event, id)">
-            <span v-if="!showModifier" class="counter" @click="AddCounter()">Add Counter</span>
-            <span v-if="showModifier" class="modifier"  v-on:click="IncreaseCounter($event)" v-on:click.right="DecreaseCounter($event)">{{ modifiersign }}{{ modifier }}</span>
-            <img v-if="type == 'white'" src="./../assets/basiclands/plains.png" :class="{ tapped : tappedCard == true }" />
-            <img v-if="type == 'blue'" src="./../assets/basiclands/island.png" :class="{ tapped : tappedCard == true }"/>
-            <img v-if="type == 'black'" src="./../assets/basiclands/swamp.png" :class="{ tapped : tappedCard == true }"/>
-            <img v-if="type == 'red'" src="./../assets/basiclands/mountain.png" :class="{ tapped : tappedCard == true }"/>
-            <img v-if="type == 'green'" src="./../assets/basiclands/forest.png" :class="{ tapped : tappedCard == true }"/> 
-        </figure>
-        <!-- Flipable Card -->
-        <figure v-if="!type && !isToken && flip" @click="TapUntapCard($event, id)" class="flip-card" :class="{ isflipped : transformed == true }">
-            <div class="actions">
-                <span @click="transformCard($event, id)" class="transform-action">Transform</span>
+    <div class="card">
+        <Moveable
+            class="moveable"
+            v-bind="moveable"
+            @drag="handleDrag"
+            v-if="!cannotMove"
+        >
+            <!-- Normal Card -->
+            <figure v-if="!type && !isToken && !flip" @click="TapUntapCard($event, id)">
                 <span v-if="!showModifier" class="counter" @click="AddCounter()">Add Counter</span>
                 <span v-if="showModifier" class="modifier"  v-on:click="IncreaseCounter($event)" v-on:click.right="DecreaseCounter($event)">{{ modifiersign }}{{ modifier }}</span>
-            </div>        
-            <div class="card-inner">
-                <div class="card-face face-back">
-                    <img v-bind:src="imagealt" :title="name" :class="{ tapped : tappedCard == true }" />
+                <img v-bind:src="image" :title="name" :class="{ tapped : tappedCard == true }" /> 
+            </figure>
+            <!-- Token Template -->
+            <figure v-if="isToken" @click="AddToken(name, image)" class="token">
+                <img v-bind:src="image" :title="name" :class="{ tapped : tappedCard == true }" /> 
+            </figure>
+            <!-- Basic Land Template -->
+            <figure v-if="type" @click="TapUntapLand($event, id)">
+                <span v-if="!showModifier" class="counter" @click="AddCounter()">Add Counter</span>
+                <span v-if="showModifier" class="modifier"  v-on:click="IncreaseCounter($event)" v-on:click.right="DecreaseCounter($event)">{{ modifiersign }}{{ modifier }}</span>
+                <img v-if="type == 'white'" src="./../assets/basiclands/plains.png" :class="{ tapped : tappedCard == true }" />
+                <img v-if="type == 'blue'" src="./../assets/basiclands/island.png" :class="{ tapped : tappedCard == true }"/>
+                <img v-if="type == 'black'" src="./../assets/basiclands/swamp.png" :class="{ tapped : tappedCard == true }"/>
+                <img v-if="type == 'red'" src="./../assets/basiclands/mountain.png" :class="{ tapped : tappedCard == true }"/>
+                <img v-if="type == 'green'" src="./../assets/basiclands/forest.png" :class="{ tapped : tappedCard == true }"/> 
+            </figure>
+            <!-- Flipable Card -->
+            <figure v-if="!type && !isToken && flip" @click="TapUntapCard($event, id)" class="flip-card" :class="{ isflipped : transformed == true }">
+                <div class="actions">
+                    <span @click="transformCard($event, id)" class="transform-action">Transform</span>
+                    <span v-if="!showModifier" class="counter" @click="AddCounter()">Add Counter</span>
+                    <span v-if="showModifier" class="modifier"  v-on:click="IncreaseCounter($event)" v-on:click.right="DecreaseCounter($event)">{{ modifiersign }}{{ modifier }}</span>
+                </div>        
+                <div class="card-inner">
+                    <div class="card-face face-back">
+                        <img v-bind:src="imagealt" :title="name" :class="{ tapped : tappedCard == true }" />
+                    </div>
+                    <div class="card-face face-front">
+                        <img v-bind:src="image" :title="name" :class="{ tapped : tappedCard == true }" /> 
+                    </div>
                 </div>
-                <div class="card-face face-front">
-                    <img v-bind:src="image" :title="name" :class="{ tapped : tappedCard == true }" /> 
-                </div>
-            </div>
-        </figure>
-    </Moveable>
+            </figure>
+        </Moveable>
+        <div v-if="cannotMove" class="static">
+            <!-- Token Template -->
+            <figure @click="AddTokenToBattlefield(name, image)">
+                <img v-bind:src="image" :title="name" :class="{ tapped : tappedCard == true }" /> 
+            </figure>
+        </div>
+    </div>
 </template>
 
 <script>
@@ -52,7 +61,7 @@ import { libraryRef } from '@/../firebase/db.js'
 
 export default {
 	name: 'Card',
-    props: ['image', 'name', 'id', 'type', 'commander', 'isToken', 'flip', 'imagealt'],
+    props: ['image', 'name', 'id', 'type', 'commander', 'isToken', 'flip', 'imagealt', 'cannotMove'],
     components: {
 		Moveable
     },
@@ -76,6 +85,9 @@ export default {
         modifiersign: null
   }),
   methods: {
+    AddTokenToBattlefield(name, image) {
+        this.$parent.$parent.DuplicateToken(name, image)
+    },
     transformCard(e, id) {
         if(this.transformed == true) {
             this.transformed = false
@@ -248,24 +260,31 @@ export default {
     
 
 
+	.static img  {
+		cursor: pointer;
+	}
+
 
     /* Card Sizes */
     .small .basic-land .moveable img,
-    .small .moveable.active img {
+    .small .moveable.active img,
+    .small .token img {
         max-width: 160px;
     }
     .small .moveable.active .flip-card {
         width: 160px;
     }
     .normal .basic-land .moveable img,
-    .normal .moveable.active img {
+    .normal .moveable.active img,
+    .normal .token img {
         max-width: 202px;
     }
     .normal .moveable.active .flip-card {
         width: 202px;
     }
     .big .basic-land .moveable img,
-    .big .moveable.active img {
+    .big .moveable.active img,
+    .big .token img {
         max-width: 300px;
     }
     .big .moveable.active .flip-card {

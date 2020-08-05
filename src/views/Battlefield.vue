@@ -34,7 +34,7 @@
                             >
                             </Card>
 					</div>
-					<div class="token-library">
+					<div class="token-library" v-if="showTokens">
 						<div class="token-list">
 							<Card v-for="token in tokenLibrary"
 								:key="token.id"
@@ -43,11 +43,12 @@
 								:image="token.image"
 								:commander="false"
 								:isToken="false"
+								:cannotMove="true"
 								>
 							</Card>
 						</div>
 						<button @click="showTokenSearch()" class="token-button">Search new tokens</button>
-						
+						<button @click="hideToken()" class="hide-tokens">Hide Token List</button>
 						<div class="history">
                         	<div v-for="(message, i) in messages" :key="i" >
 								<div class="message">
@@ -69,6 +70,19 @@
 							<input type="text" v-model="settings.playmat" @change="SavePlaymat(settings.playmat)" placeholder="(should be 1920x1080)" />
 						</div>
                     </div>
+					<div class="tokens">
+                        <figure v-for="(token, i) in tokensActive" :key="i" class="tokens-active">
+                            <Card
+								:image="token.image"
+                                :id="i"
+								:name="token.name"
+								:commander="false"
+								:isToken="true" 
+								:cannotMove="false"
+                            >
+                            </Card>
+                        </figure>
+					</div>
                     <div class="lands">
                         <figure v-for="(basicland, i) in basiclands" :key="i" class="basic-land">
                             <Card
@@ -183,6 +197,7 @@ export default {
 			messages: [],
 			tokenLibrary: [],
 			tokenList: [],
+			tokensActive: [],
 			error: "", 
 			symbols: [],
             library: [],
@@ -197,12 +212,21 @@ export default {
 			currentDeck: this.$router.app._route.params.library,
 			showLibraryList: false, 
 			settings: [],
-			showTokenList: false
+			showTokenList: false,
+			showTokens: true
 		}
 	},
 	created() {
 	},
 	methods: {
+		DuplicateToken(name, image) {
+			this.tokensActive.push({
+				name: name,
+				image: image,
+				id: this.tokensActive.length
+			})
+			console.log("Adding token")
+		},
 		showLibrary() {
 			if(this.showLibraryList == false) {
 				this.showLibraryList = true
@@ -563,7 +587,7 @@ export default {
     .library-list,
 	.token-list {
         padding-right: 15px;
-		padding-top: 127%;
+    	padding-top: 109%;
 	}
 
 
