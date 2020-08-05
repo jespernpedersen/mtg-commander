@@ -21,7 +21,7 @@
 							<button @click="SaveLibrary(cards)">Add to library?</button>
                         </div>
 					</div>
-					<div class="library-list">
+					<div class="library-list" :class="{ expanded: hideTokenList }">
                             <Card v-for="card in library" 
 								:key="card.id"
                                 :id="card.id"
@@ -34,8 +34,8 @@
                             >
                             </Card>
 					</div>
-					<div class="token-library" v-if="showTokens">
-						<div class="token-list">
+					<div class="token-library">
+						<div class="token-list" v-if="!hideTokenList">
 							<Card v-for="token in tokenLibrary"
 								:key="token.id"
 								:id="token.id"
@@ -47,8 +47,9 @@
 								>
 							</Card>
 						</div>
-						<button @click="showTokenSearch()" class="token-button">Search new tokens</button>
-						<button @click="hideToken()" class="hide-tokens">Hide Token List</button>
+						<button @click="showTokenSearch()"  v-if="!hideTokenList" class="token-button">Search new tokens</button>
+						<button @click="hideTokens()" v-if="!hideTokenList" class="hide-tokens">Hide Token List</button>
+						<button @click="showAllTokens()" v-if="hideTokenList" class="show-tokens">Show Token List</button>
 						<div class="history">
                         	<div v-for="(message, i) in messages" :key="i" >
 								<div class="message">
@@ -152,7 +153,7 @@
 						:name="token.name"
 						:image="token.image"
 						:commander="false"
-						:isToken="true"
+						:isTokenList="true"
 					>
 					</Card>
 				</div>
@@ -213,7 +214,8 @@ export default {
 			showLibraryList: false, 
 			settings: [],
 			showTokenList: false,
-			showTokens: true
+			showTokens: true,
+			hideTokenList: false
 		}
 	},
 	created() {
@@ -226,6 +228,12 @@ export default {
 				id: this.tokensActive.length
 			})
 			console.log("Adding token")
+		},
+		hideTokens() {
+			this.hideTokenList = true
+		},
+		showAllTokens() {
+			this.hideTokenList = false
 		},
 		showLibrary() {
 			if(this.showLibraryList == false) {
@@ -546,6 +554,8 @@ export default {
 
 	.library {
 		padding: 15px;
+		position: relative;
+		z-index: 50
 	}
 
 	.special-zone {
@@ -571,6 +581,11 @@ export default {
 		overflow-y: scroll;
 		height: calc(100% - 120px);
     	max-height: 40vh;
+		transition: 0.3s ease-in-out;
+	}
+
+	.library-list.expanded {
+		max-height: 80vh;
 	}
 
 	.token-list {
@@ -707,7 +722,7 @@ export default {
 		text-align: center;
 		transform: translate(-50%, -50%);
 		left: 50%;
-		z-index: 9999;
+		z-index: 20;
 	}
 	
 	.commander-damage-wrapper > button {
@@ -830,7 +845,11 @@ export default {
 	}
 
 	.token-library {
-		margin-top: 25px;
+		margin-top: 5px;
+	}
+
+	.library-list:not(.expanded) {
+		margin-bottom: 25px;
 	}
 
 	.close-modal {
@@ -845,11 +864,22 @@ export default {
 		position: relative;
 	}
 
-	.token-button {
+	.token-button,
+	.hide-tokens,
+	.show-tokens {
 		position: relative;
 		z-index: 99999999999;
+		margin-top: 5px;
+		font-size: 12px;
+	}
+
+	.hide-tokens {
+		margin-left: 10px;
+	}
+	
+	.hide-tokens,
+	.show-tokens {
 		margin-top: 10px;
-		margin-left: 50px;
 	}
 	.history {
 		height: 100px;

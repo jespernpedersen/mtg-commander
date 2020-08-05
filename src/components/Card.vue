@@ -8,17 +8,23 @@
         >
             <!-- Normal Card -->
             <figure v-if="!type && !isToken && !flip" @click="TapUntapCard($event, id)">
-                <span v-if="!showModifier" class="counter" @click="AddCounter()">Add Counter</span>
+                <span v-if="!showModifier" class="counter" @click="AddCounter($event)">Add Counter (CTRL-LClick)</span>
                 <span v-if="showModifier" class="modifier"  v-on:click="IncreaseCounter($event)" v-on:click.right="DecreaseCounter($event)">{{ modifiersign }}{{ modifier }}</span>
                 <img v-bind:src="image" :title="name" :class="{ tapped : tappedCard == true }" /> 
             </figure>
+            <!-- Token List Template -->
+            <figure v-if="isTokenList" @click="AddToken(name, image)" class="token">
+                <img v-bind:src="image" :title="name" :class="{ tapped : tappedCard == true }" /> 
+            </figure>
             <!-- Token Template -->
-            <figure v-if="isToken" @click="AddToken(name, image)" class="token">
+            <figure v-if="isToken" class="token">
+                <span v-if="!showModifier" class="counter" @click="AddCounter($event)">Add Counter (CTRL-LClick)</span>
+                <span v-if="showModifier" class="modifier"  v-on:click="IncreaseCounter($event)" v-on:click.right="DecreaseCounter($event)">{{ modifiersign }}{{ modifier }}</span>
                 <img v-bind:src="image" :title="name" :class="{ tapped : tappedCard == true }" /> 
             </figure>
             <!-- Basic Land Template -->
             <figure v-if="type" @click="TapUntapLand($event, id)">
-                <span v-if="!showModifier" class="counter" @click="AddCounter()">Add Counter</span>
+                <span v-if="!showModifier" class="counter" @click="AddCounter($event)">Add Counter (CTRL-LClick)</span>
                 <span v-if="showModifier" class="modifier"  v-on:click="IncreaseCounter($event)" v-on:click.right="DecreaseCounter($event)">{{ modifiersign }}{{ modifier }}</span>
                 <img v-if="type == 'white'" src="./../assets/basiclands/plains.png" :class="{ tapped : tappedCard == true }" />
                 <img v-if="type == 'blue'" src="./../assets/basiclands/island.png" :class="{ tapped : tappedCard == true }"/>
@@ -96,9 +102,11 @@ export default {
             this.transformed = true
         }
     },
-    AddCounter() {
-        this.showModifier = true
-        this.modifier = 0;
+    AddCounter(e) {
+        if(e.ctrlKey) {
+            this.showModifier = true
+            this.modifier = 0;
+        }
     },
     IncreaseCounter(e) {
         if (e.shiftKey) {
