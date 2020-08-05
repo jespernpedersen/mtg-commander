@@ -1,20 +1,21 @@
 <template>
-    <Moveable
-        class="moveable card"
-        v-bind="moveable"
-        @drag="handleDrag"
-    >
-        <figure v-if="!isSearching">
-            <img v-bind:src="image" :title="name" :class="{ tapped : tappedCard == true }" /> 
+    <div class="card" @click="PlayCard(id, isPlayed)">
+        <figure v-if="!isSearching" :class="{ hidden: hidden == true }">
+            <div class="card-face front">
+                <img v-bind:src="image" :title="name" :class="{ tapped : tappedCard == true }" /> 
+            </div>
+            <div class="card-face back">
+                <img src="./../assets/card-back.png" :class="{ tapped : tappedCard == true }" />
+            </div>
             <div class="hand-card-actions">
-                <span v-if="!isSearching" class="top-deck" @click="PutCardTop(id)">Put on top of deck</span>
-                <span v-if="!isSearching" class="bottom-deck" @click="PutCardBottom(id)">Put on the bottom of deck</span>
+                <span v-if="!isSearching" class="top-deck" @click="PutCardTop(id)">Top</span>
+                <span v-if="!isSearching" class="bottom-deck" @click="PutCardBottom(id)">Bottom</span>
             </div>
         </figure>
         <figure v-if="isSearching" @click="SearchedForCard(id)">
             <img v-bind:src="image" :title="name" :class="{ tapped : tappedCard == true }" /> 
         </figure>
-    </Moveable>
+    </div>
 </template>
 
 <script>
@@ -26,7 +27,7 @@ import { libraryRef } from '@/../firebase/db.js'
 
 export default {
 	name: 'Card',
-    props: ['image', 'name', 'id', 'type', 'commander', 'isSearching'],
+    props: ['image', 'name', 'id', 'type', 'commander', 'isSearching', 'hidden', 'isPlayed'],
     components: {
 		Moveable
     },
@@ -42,6 +43,7 @@ export default {
             rotatable: false,
             throttleRotate: 0,
         },
+        hiddenCards: this.$parent.showingHand,
         cardIndex: 16,
         tappedCard: false,
         modifier: null,
@@ -49,6 +51,14 @@ export default {
         modifiersign: null,
   }),
   methods: {
+    PlayCard(id, isPlayed) {
+        if(!isPlayed) {
+            this.$parent.$parent.PlayingCard(id)
+        }
+        else {
+            this.$parent.$parent.UndoPlaying(id)
+        }
+    },
     SearchedForCard(id) {
         console.log("Adding to Hand..")
         this.$parent.$parent.AddToHand(id);
@@ -81,11 +91,11 @@ export default {
     img {
         width: 100%;
     }
-    .moveable {
+    .card {
         z-index: 15;
         position: relative;
     }
-    .moveable:hover {
+    .card:hover {
         z-index: 9999;
     }
     .moveable.active {
@@ -147,12 +157,19 @@ export default {
         border: 2px solid #222;
     }
 
+    .hand-card-actions{
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+    }
+
 
     .hand-card-actions span {
         display: inline-block;
         width: 100%;
         opacity: 0;
         transition: 0.3s ease-in-out;
+        position: absolute;
     }
 
     .card:hover span {
@@ -179,5 +196,48 @@ export default {
     .big .basic-land .moveable img,
     .big .moveable.active img {
         max-width: 300px;
+    }
+
+    /* Hide Cards */
+     .back  {
+         display: none;
+     }
+    .card {
+        height: 282px;
+        width: 100%;
+        perspective: 600px;
+        position: relative;
+    }
+    .card figure {      
+        width: 100%;
+        height: 100%;
+        position: relative;
+        transition: transform 1s;
+        transform-style: preserve-3d;
+    }
+    .hidden .back {
+        display: block;
+        height: 100%;
+        width: 100%;
+    }
+    .card-face {
+        position: absolute;
+        height: 100%;
+        width: 100%;
+        backface-visibility: hidden;
+    }
+    .hidden {      
+        transform: rotateY(180deg);
+    }
+    .hidden_cards .card.tapped .card-face.front {
+        display: none;
+    }
+    .back {      
+        transform: rotateY( 180deg );
+    }
+    
+
+    .scrying .card-face {
+        position: static;
     }
 </style>

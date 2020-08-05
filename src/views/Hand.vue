@@ -12,7 +12,8 @@
                     <span class="scry" @click="Scry()">Scry</span>
                     <span class="search-library" v-if="!searchingLibrary" @click="SearchLibrary()">Search Library</span>
                     <span class="search-library" v-if="searchingLibrary" @click="StopSearchingLibrary()">Stop Searching Library</span>
-                   
+                    <span class="hide-hand" v-if="!showingHand" @click="HideHand()">Hide Hand</span>
+                    <span class="show-hand" v-if="showingHand" @click="ShowHand()">Show Hand</span>
                 </div>
 
                 <div class="scrying" v-if="scry.length > 0">
@@ -34,18 +35,30 @@
                         <span v-if="hand.length > 0">Hand Size: {{ hand.length }}</span>
                     </div>
                     <div class="hand-wrapper">
-                    <HandCard v-for="card in hand"
-					    :key="card.id"
-                        :id="card.id"
-                        :name="card.name"
-                        :image="card.image"
-                        >
-                    </HandCard>
+                        <HandCard v-for="card in hand"
+                            :key="card.id"
+                            :id="card.id"
+                            :name="card.name"
+                            :image="card.image"
+                            :hidden="showingHand"
+                            :isPlayed="false"
+                            >
+                        </HandCard>
                     </div>
                 </div>
 
                 <div class="on-battlefield">
                     <h3>Played Cards</h3>
+                    <div class="played-list">
+                        <HandCard v-for="card in playedCards"
+                            :key="card.id"
+                            :id="card.id"
+                            :name="card.name"
+                            :image="card.image"
+                            :isPlayed="true"
+                            >
+                        </HandCard>
+                    </div>
                 </div>
             </div>
 		</div>
@@ -82,14 +95,41 @@ export default {
 		return {
             library: [],
             hand: [],
+            playedCards: [],
             scry: [],
             gameStarted: false,
-            searchingLibrary: false
+            searchingLibrary: false,
+            showingHand: false
 		}
 	},
 	created() {
 	},
 	methods: {
+        PlayingCard(id) {
+            this.hand.forEach((card) => {
+                if(card.id == id) {
+                    this.playedCards.push(card)
+                    let index = this.hand.indexOf(card)
+                    this.hand.splice(index, 1)
+                }
+            })
+        },
+        UndoPlaying(id) {
+            this.playedCards.forEach((card) => {
+                if(card.id == id) {
+                    let index = this.playedCards.indexOf(card)
+                    this.hand.push(card)
+                    this.playedCards.splice(index, 1)
+                }
+            })
+        },
+        HideHand() {
+            console.log("Hiding Hand")
+            this.showingHand = true
+        },
+        ShowHand() {
+            this.showingHand = false
+        },
         SearchLibrary() {
             this.searchingLibrary = true;
             
@@ -309,7 +349,7 @@ export default {
         flex-wrap: wrap;
         width: 100%;
         justify-content: center;
-        padding: 0 100px;
+        padding: 0 300px;
     }
 
     .hand .card:not(.active):hover {
@@ -351,6 +391,7 @@ export default {
     .hand .card {
         max-width: 220px;
         margin-bottom: 20px;
+        min-height: 307px;
     }
 
     .hand .card:not(:last-child) {
@@ -397,7 +438,27 @@ export default {
         position: relative;
     }
 
+    .played-list {
+        max-height: 500px;
+        overflow: scroll;
+        overflow-x: hidden;
+        width: 160px;
+        padding-top: 180%;
+    }
+
+    .played-list  .card {
+		margin-top: -180%;
+	}
+
+	.played-list  img {
+		max-width: 100%;
+    }
+
     .library-wrapper .card:not(:last-child) {
         margin-right: 15px;
+    }
+
+    .scrying .card-face {
+        position: static;
     }
 </style>
