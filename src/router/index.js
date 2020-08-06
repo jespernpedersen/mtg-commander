@@ -12,6 +12,11 @@ const my_routes = [{
             import ( /* webpackChunkName: "about" */ '@/views/Battlefield.vue')
     },
     {
+        path: '/',
+        component: () =>
+            import ( /* webpackChunkName: "about" */ '@/views/Start.vue')
+    },
+    {
         path: '/:library/hand',
         params: {
             library: ':id'
