@@ -3,16 +3,19 @@
         <div class="new-deck">
             <div class="container v-center">
             <h1>Magic: Commander -> Deck List</h1>
-            
+            <p>By jes</p>
             <div class="new-deck-creator">
                 <form>
-                    <input type="text" v-model="deckname" required>
+                    <input type="text" v-model="deckname" required placeholder="Name of your deck">
                     <a v-bind:href="deckname" title="Create new deck" class="button">Create new deck</a>
                 </form>
             </div>
         </div>
         </div>
         <div class="container center">
+            
+                
+            <h2>All made decks</h2>
             <ul class="all-libraries">
                 <li class="library-decks" v-for="library in alllibraries" :key="library.active"> 
                     <a v-bind:href="'/' + library.name" v-if="!library.active">{{ library.name }}</a>
@@ -83,24 +86,33 @@ export default {
 
     .button {
         border: 3px solid #FFF;
-        padding: 3px 8px;
+        padding: 8px 20px;
         text-transform: uppercase;
         -webkit-transition: all 0.3s ease-in-out;
         transition: all 0.3s ease-in-out;
         background-color: transparent;
         color: inherit;
-        margin-left: 15px;
+        margin-left: 5px;
         outline: none;
+        text-decoration: none;
+    }
+
+    h2 {
+        border-bottom: 2px solid #FFF;
+        padding-top: 50px;
+        width: 100%;
+        margin-bottom: 40px;
+        text-transform: uppercase;
     }
 
     .new-deck {
         background-color: #fff;
         color: #222;
-        padding-bottom: 70px;
+        padding-bottom: 50px;
     }
 
     form {
-        margin-top: 50px;
+        margin-top: 20px;
     }
     
     .button:hover {
@@ -124,13 +136,14 @@ export default {
 
     .center {
         display: flex;
-        align-items: center;
+        flex-direction: column;
     }
     ul {
         width: 100%;
         list-style: none;
         display: flex;
         flex-wrap: wrap;
+        padding-left: 0;
     }
     ul li {
         width: 20%;
