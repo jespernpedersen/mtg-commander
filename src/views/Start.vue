@@ -1,8 +1,16 @@
 <template>
 	<v-app dark>
-        
-        <h1>Magic: Commander -> Deck List</h1>
         <div class="new-deck">
+            <div class="container v-center">
+            <h1>Magic: Commander -> Deck List</h1>
+            
+            <div class="new-deck-creator">
+                <form>
+                    <input type="text" v-model="deckname" required>
+                    <a v-bind:href="deckname" title="Create new deck" class="button">Create new deck</a>
+                </form>
+            </div>
+        </div>
         </div>
         <div class="container center">
             <ul class="all-libraries">
@@ -27,6 +35,7 @@ export default {
 	},
 	data () {
 		return {
+            deckname: '',
 			alllibraries: [],
 		}
 	},
@@ -72,8 +81,48 @@ export default {
         font-size: 40px;
     }
 
+    .button {
+        border: 3px solid #FFF;
+        padding: 3px 8px;
+        text-transform: uppercase;
+        -webkit-transition: all 0.3s ease-in-out;
+        transition: all 0.3s ease-in-out;
+        background-color: transparent;
+        color: inherit;
+        margin-left: 15px;
+        outline: none;
+    }
+
+    .new-deck {
+        background-color: #fff;
+        color: #222;
+        padding-bottom: 70px;
+    }
+
+    form {
+        margin-top: 50px;
+    }
+    
+    .button:hover {
+        background-color: #222;
+        color: #fff;
+    }
+
+    .v-center {
+        display: flex;
+        align-items: center;
+        flex-direction: column;
+    }
+
+    input {
+        background-color: #222;
+        padding: 8px 20px;
+        border-radius: 16px;
+        color: white;
+        outline: none;
+    }
+
     .center {
-        margin-top: -100px;
         display: flex;
         align-items: center;
     }
