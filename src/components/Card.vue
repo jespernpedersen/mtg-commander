@@ -7,7 +7,7 @@
             v-if="!cannotMove"
         >
             <!-- Normal Card -->
-            <figure v-if="!type && !isToken && !flip" @click="TapUntapCard($event, id)">
+            <figure v-if="!type && !isToken && !flip && !isTokenList" @click="TapUntapCard($event, id)">
                 <span v-if="!showModifier" class="counter" @click="AddCounter($event)">Add Counter (CTRL-LClick)</span>
                 <span v-if="showModifier" class="modifier"  v-on:click="IncreaseCounter($event)" v-on:click.right="DecreaseCounter($event)">{{ modifiersign }}{{ modifier }}</span>
                 <img v-bind:src="image" :title="name" :class="{ tapped : tappedCard == true }" /> 
@@ -67,7 +67,7 @@ import { libraryRef } from '@/../firebase/db.js'
 
 export default {
 	name: 'Card',
-    props: ['image', 'name', 'id', 'type', 'commander', 'isToken', 'flip', 'imagealt', 'cannotMove'],
+    props: ['image', 'name', 'id', 'type', 'commander', 'isToken', 'isTokenList', 'flip', 'imagealt', 'cannotMove'],
     components: {
 		Moveable
     },

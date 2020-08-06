@@ -153,6 +153,9 @@
 						:name="token.name"
 						:image="token.image"
 						:commander="false"
+						:isToken="false"
+						:type="false"
+						:flip="false"
 						:isTokenList="true"
 					>
 					</Card>
@@ -254,8 +257,7 @@ export default {
 				name: name,
 				image: image
 			}
-			this.tokenLibrary.push(tokenArray)
-			libraryRef.doc(this.$router.app._route.params.library).collection("tokens").doc(name).set({
+			libraryRef.doc(this.$router.app._route.params.library).collection("tokens").doc().set({
 				name: name,
 				image: image
 			})
