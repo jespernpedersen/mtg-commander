@@ -126,6 +126,16 @@
                             >
                             </Card>
 						</div>
+						<div class="partner" v-if="settings.partner">
+							<Card :key="i" 
+									:id="settings.partner.id"
+									:name="settings.partner.name"
+									:image="settings.partner.image"
+									:commander="true"
+									:isToken="false"
+							>
+							</Card>
+						</div>
 						<div class="commander" v-if="!settings.commander">
                             <Card v-for="(card, i) in commander" :key="i" 
                                 :id="settings.commander.id"
@@ -496,16 +506,27 @@ export default {
 			.then(response => {
 				var cardsData = response
 				self.commander = new Array(cardsData);
-
-				let commanderArray = {
-					id: self.commander[0].oracle_id,
-					name: self.commander[0].name,
-					image: self.commander[0].image_uris.png
+				if(self.settings.commander) {
+					let commanderArray = {
+						id: self.commander[0].oracle_id,
+						name: self.commander[0].name,
+						image: self.commander[0].image_uris.png
+					}
+					libraryRef.doc(this.$router.app._route.params.library).update({
+						partner: commanderArray
+					})
 				}
-				libraryRef.doc(this.$router.app._route.params.library).set({
-					playmat: this.settings.playmat,
-					commander: commanderArray
-				})
+				else {
+					let commanderArray = {
+						id: self.commander[0].oracle_id,
+						name: self.commander[0].name,
+						image: self.commander[0].image_uris.png
+					}
+					libraryRef.doc(this.$router.app._route.params.library).update({
+						playmat: this.settings.playmat,
+						commander: commanderArray
+					})
+				}
        		})
 			.catch(error => {
 				console.error('Error:',error);
@@ -907,5 +928,10 @@ export default {
 	.history .message span {
 		text-align: left;
 		opacity: 0.5;
+	}
+
+	.partner {
+		margin-top: -310px;
+		margin-left: 25px;
 	}
 </style>
