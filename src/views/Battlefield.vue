@@ -228,10 +228,17 @@ export default {
 			settings: [],
 			showTokenList: false,
 			showTokens: true,
-			hideTokenList: false
+			hideTokenList: false,
+			gameStarted: false
 		}
 	},
 	created() {
+		window.addEventListener('beforeunload', (event) => {
+			if(this.gameStarted) {
+				event.preventDefault();
+				event.returnValue = '';
+			}
+		});
 	},
 	methods: {
 		DuplicateToken(name, image) {

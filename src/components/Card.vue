@@ -181,6 +181,10 @@ export default {
         this.cardIndex++;
     },
     handleDrag({ target, left, right, top }) {
+      if(this.$parent.$parent.gameStarted == false) {
+          this.$parent.$parent.gameStarted = true
+          console.log(this.$parent.$parent.gameStarted)
+      }
       target.classList.add("active");
       target.style.zIndex = this.cardIndex;
       if(this.commander == false) {
