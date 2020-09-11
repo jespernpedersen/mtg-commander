@@ -6,7 +6,7 @@
             <p>By jes</p>
             <div class="new-deck-creator">
                 <form>
-                    <input type="text" v-model="deckname" required placeholder="Name of your deck">
+                    <input type="text" v-model="deckname" required placeholder="Name of your deck" @keydown.space.prevent>
                     <a v-bind:href="deckname" title="Create new deck" class="button">Create new deck</a>
                 </form>
             </div>
