@@ -26,6 +26,7 @@
                             :id="card.id"
                             :name="card.name"
                             :image="card.image"
+                            :source="'library'"
                             >
                         </HandCard> 
                     </div>
@@ -45,6 +46,7 @@
                             :image="card.image"
                             :hidden="showingHand"
                             :isPlayed="false"
+                            :source="'hand'"
                             >
                         </HandCard>
                     </div>
@@ -167,22 +169,44 @@ export default {
                 }
             })
         },
-        CardLibraryBottom(id) {
-            this.hand.forEach((card) => {
-                if(card.id == id) {
-                    let specifiedCard = card;
-                    let index = this.hand.indexOf(specifiedCard)
-                    this.hand.splice(index, 1)
-                    this.library.push(specifiedCard)
-                }
-            })
+        CardLibraryBottom(id, source) {
+            if(source == "hand") {
+                this.hand.forEach((card) => {
+                    if(card.id == id) {
+                        let specifiedCard = card;
+                        let index = this.hand.indexOf(specifiedCard)
+                        this.hand.splice(index, 1)
+                        this.library.push(specifiedCard)
+                    }
+                })
+            }
+            else if (source == "library") {
+                this.library.forEach((card) => {
+                    if(card.id == id) {
+                        let specifiedCard = card;
+                        let index = this.library.indexOf(specifiedCard)
+                        this.library.splice(index, 1)
+                        this.library.push(specifiedCard);
+                    }
+                })
+                this.scry.forEach((card) => {
+                    if(card.id == id) {
+                        let specifiedCard = card;
+                        let index = this.scry.indexOf(specifiedCard)
+                        this.scry.splice(index, 1)
+                    }
+                })
+            }
+            else {
+                console.log("Error. Contact Jes. Source of card could not be read");
+            }
         },
         Scry(amount) {
             var i;
             for (i = 0; i < amount; i++) {
                 this.scry.push(this.library[i]);
             }
-            
+
             messageRef.doc().set({
                 owner: this.$router.app._route.params.library,
                 text: "has scryed for " + amount,
@@ -195,9 +219,6 @@ export default {
         },
         ShuffleLibrary() {
             this.Shuffle(this.library)
-
-            console.log("Shuffling...")
-            
             messageRef.doc().set({
                 owner: this.$router.app._route.params.library,
                 text: "shuffled their library",

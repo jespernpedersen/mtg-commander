@@ -9,7 +9,7 @@
             </div>
             <div class="hand-card-actions">
                 <span v-if="!isSearching" class="top-deck" @click="PutCardTop(id)">Top</span>
-                <span v-if="!isSearching" class="bottom-deck" @click="PutCardBottom(id)">Bottom</span>
+                <span v-if="!isSearching" class="bottom-deck" @click="PutCardBottom(id, source)">Bottom</span>
             </div>
         </figure>
         <figure v-if="isSearching" @click="SearchedForCard(id)">
@@ -27,7 +27,7 @@ import { libraryRef } from '@/../firebase/db.js'
 
 export default {
 	name: 'Card',
-    props: ['image', 'name', 'id', 'type', 'commander', 'isSearching', 'hidden', 'isPlayed'],
+    props: ['image', 'name', 'id', 'type', 'commander', 'isSearching', 'hidden', 'isPlayed', 'source'],
     components: {
 		Moveable
     },
@@ -60,14 +60,13 @@ export default {
         }
     },
     SearchedForCard(id) {
-        console.log("Adding to Hand..")
         this.$parent.$parent.AddToHand(id);
     },
     PutCardTop(id) {
         this.$parent.$parent.CardLibraryTop(id)
     },
-    PutCardBottom(id) {
-        this.$parent.$parent.CardLibraryBottom(id)
+    PutCardBottom(id, source) {
+        this.$parent.$parent.CardLibraryBottom(id, source)
     },
     IncreaseIndex() {
         this.cardIndex++;
