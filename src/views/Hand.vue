@@ -9,7 +9,10 @@
                     <span class="draw" @click="Draw()" v-if="gameStarted">Draw</span>
                     <span class="draw-hand" @click="DrawHand()" v-if="!gameStarted">Draw Hand</span>
                     <span class="shuffle-library" @click="ShuffleLibrary()">Shuffle Library</span>
-                    <span class="scry" @click="Scry()">Scry</span>
+                    <span class="scry">
+                        <input type="number" v-model="scrynumber" />
+                        <span @click="Scry(scrynumber)">Scry</span>
+                    </span>
                     <span class="search-library" v-if="!searchingLibrary" @click="SearchLibrary()">Search Library</span>
                     <span class="search-library" v-if="searchingLibrary" @click="StopSearchingLibrary()">Stop Searching Library</span>
                     <span class="hide-hand" v-if="!showingHand" @click="HideHand()">Hide Hand</span>
@@ -97,6 +100,7 @@ export default {
             hand: [],
             playedCards: [],
             scry: [],
+            scrynumber: 1,
             gameStarted: false,
             searchingLibrary: false,
             showingHand: false
@@ -173,17 +177,21 @@ export default {
                 }
             })
         },
-        Scry() {
-            this.scry.push(this.library[0])
-
+        Scry(amount) {
+            var i;
+            for (i = 0; i < amount; i++) {
+                this.scry.push(this.library[i]);
+            }
+            
             messageRef.doc().set({
                 owner: this.$router.app._route.params.library,
-                text: "has scryed for 1",
+                text: "has scryed for " + amount,
                 timeStamp: firebase.firestore.Timestamp.fromDate(new Date())
             })
         },
         StopScrying() {
-            this.scry = []
+            this.scrynumber = 1;
+            this.scry = [];
         },
         ShuffleLibrary() {
             this.Shuffle(this.library)
@@ -315,6 +323,13 @@ export default {
         top: 50%;
         left: 50%;
         padding: 0 100px;    
+        width: 100%;
+        display: flex;
+        justify-content: center;    
+    }
+
+    .scrying .card-wrapper .card:not(:last-child) {
+        margin-right: 30px;
     }
 
     .scrying .remove-scry {
@@ -425,6 +440,22 @@ export default {
         position: absolute;
     }
 
+    .scry input {
+        width: 50px;
+        background-color: rgba(255, 255, 255, 0.2);
+        color: #FFF;
+        border-radius: 100%;
+        margin-right: 10px;
+        text-align: center;
+        -webkit-appearance: none;
+    }
+
+    .scry input::-webkit-outer-spin-button,
+    .scry input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
     .library-wrapper {
         padding-top: 100px;
         overflow-y: scroll;
@@ -456,9 +487,5 @@ export default {
 
     .library-wrapper .card:not(:last-child) {
         margin-right: 15px;
-    }
-
-    .scrying .card-face {
-        position: static;
     }
 </style>

@@ -247,7 +247,6 @@ export default {
 				image: image,
 				id: this.tokensActive.length
 			})
-			console.log("Adding token")
 		},
 		hideTokens() {
 			this.hideTokenList = true
