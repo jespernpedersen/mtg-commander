@@ -8,7 +8,7 @@
                 <img src="./../assets/card-back.png" :class="{ tapped : tappedCard == true }" />
             </div>
             <div class="hand-card-actions">
-                <span v-if="!isSearching" class="top-deck" @click="PutCardTop(id)">Top</span>
+                <span v-if="!isSearching" class="top-deck" @click="PutCardTop(id, source)">Top</span>
                 <span v-if="!isSearching" class="bottom-deck" @click="PutCardBottom(id, source)">Bottom</span>
             </div>
         </figure>
@@ -62,8 +62,8 @@ export default {
     SearchedForCard(id) {
         this.$parent.$parent.AddToHand(id);
     },
-    PutCardTop(id) {
-        this.$parent.$parent.CardLibraryTop(id)
+    PutCardTop(id, source) {
+        this.$parent.$parent.CardLibraryTop(id, source)
     },
     PutCardBottom(id, source) {
         this.$parent.$parent.CardLibraryBottom(id, source)
