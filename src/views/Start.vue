@@ -6,15 +6,13 @@
             <p>By jes</p>
             <div class="new-deck-creator">
                 <form>
-                    <input type="text" v-model="deckname" required placeholder="Name of your deck">
-                    <a v-bind:href="deckname" title="Create new deck" class="button">Create new deck</a>
+                    <input type="text" v-model="deckname" required placeholder="Name of your deck" @keydown.space.prevent>
+                    <a v-bind:href="deckname | lowercase" title="Create new deck" class="button">Create new deck</a>
                 </form>
             </div>
         </div>
         </div>
         <div class="container center">
-            
-                
             <h2>All made decks</h2>
             <ul class="all-libraries">
                 <li class="library-decks" v-for="library in alllibraries" :key="library.active"> 
@@ -42,6 +40,13 @@ export default {
 			alllibraries: [],
 		}
 	},
+    filters: {
+        lowercase: function (value) {
+            if (!value) return ''
+            value = value.toString()
+            return value.toLowerCase()
+        }
+    },
 	created() {
 	},
 	methods: {
@@ -65,7 +70,7 @@ export default {
 	},
 	mounted() {
 		this.getLibraries()
-	}
+	},
 };
 </script>
 <style scoped>
