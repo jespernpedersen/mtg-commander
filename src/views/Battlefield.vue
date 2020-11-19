@@ -18,7 +18,7 @@
 						<Result :error="error" :cards="cards" />
                         <div class="result"  v-if="cards.length > 0" >
                         	<span style="color: lightgreen;">Card has been found</span>
-							<button @click="SaveLibrary(cards)">Add to library?</button>
+							<button @click="SaveLibrary(cards, 'manually')">Add to library?</button>
                         </div>
 					</div>
 					<div class="library-list" :class="{ expanded: hideTokenList }">
@@ -175,7 +175,7 @@
 				<span class="close-modal" @click="hideTokenSearch()">Close</span>
 			</div>
 		</div>
-		<div class="modal import">
+		<div class="modal import" v-if="ShowImport">
 			<div class="modal-content">
 				<h3>Import Deck</h3>
 				<textarea v-model="importCards">
@@ -287,41 +287,6 @@ export default {
 		showImport() {
 			this.showImport = true;
 		},
-		async ImportDeck(deck) {
-			let icards = deck.split('\n');
-			const url = 'https://api.scryfall.com/cards/named?fuzzy=';
-			const timer = ms => new Promise(res => setTimeout(res, ms))
-
-			let importedCards = [];
-
-
-			for(var i = 0; i < icards.length; i++) {
-				this.importInit = true
-				
-				this.importedCards = i + 1;
-				this.importTotal = icards.length;
-				// Loop
-				fetch(url + icards[i])
-					.then(res => {
-						if (res.status === 200) {
-							return res.json()
-						} else {
-							self.error = "No results found";
-						}
-					})
-					.then(response => {
-						var cardsData = response
-						self.icards = new Array(cardsData);
-						importedCards.push(self.icards);
-						console.log(importedCards);
-					})
-					.catch(error => {
-						console.error('Error:',error);
-				})
-				// API doesn't allow us to spam it
-    			await timer(3000);
-			}
-		},
 		hideTokenSearch() {
 			this.showTokenList = false;
 		},
@@ -414,13 +379,16 @@ export default {
 				this.lifecount++
 			}
 		},
-		SaveLibrary(cards) {
+		SaveLibrary(cards, source) {
+			let origin = source;
 			cards.forEach((card) => {
-				let card_name = card.name
+				console.log(card[0])
 
-				if(card.card_faces) {
-					let card_image = card.card_faces[0].image_uris.png
-					let card_image_alt = card.card_faces[1].image_uris.png
+				let card_name = card[0].name
+
+				if(card[0].card_faces) {
+					let card_image = card[0].card_faces[0].image_uris.png
+					let card_image_alt = card[0].card_faces[1].image_uris.png
 
 					if(this.library.length > 0) {
 						libraryRef.doc(this.$router.app._route.params.library).collection("cards").orderBy("id", "desc").limit(1).get().then((querySnapshot) => {
@@ -457,7 +425,7 @@ export default {
 					}
 				}
 				else {
-					let card_image = card.image_uris.png
+					let card_image = card[0].image_uris.png
 					if(this.library.length > 0) {
 						libraryRef.doc(this.$router.app._route.params.library).collection("cards").orderBy("id", "desc").limit(1).get().then((querySnapshot) => {
 							querySnapshot.forEach((doc) => {
@@ -489,9 +457,7 @@ export default {
 					}
 				}
 				console.log(card_image)
-
 			})
-
 		},
 		searchData(searchTerm) {
 			const url = 'https://api.scryfall.com/cards/named?fuzzy=';
@@ -508,8 +474,8 @@ export default {
 				}
 			})
 			.then(response => {
-				var cardsData = response
-				self.cards = new Array(cardsData);
+				var cardsData = new Array(response)
+				self.cards.push(cardsData);
        		})
 			.catch(error => {
 				console.error('Error:',error);
@@ -550,7 +516,45 @@ export default {
 
 			})
 		},
+		async ImportDeck(deck) {
+			let icards = deck.split('\n');
+			const url = 'https://api.scryfall.com/cards/named?fuzzy=';
+			const timer = ms => new Promise(res => setTimeout(res, ms))
 
+			let importedCards = [];
+
+
+			for(var i = 0; i < icards.length; i++) {
+				this.importInit = true
+				
+				this.importedCards = i + 1;
+				this.importTotal = icards.length;
+				// Loop
+				fetch(url + icards[i])
+					.then(res => {
+						if (res.status === 200) {
+							return res.json()
+						} else {
+							self.error = "No results found";
+						}
+					})
+					.then(response => {
+						var cardsData = response
+						self.icards = new Array(cardsData);
+						importedCards.push(self.icards);
+					})
+					.catch(error => {
+						console.error('Error:',error);
+				})
+				// API doesn't allow us to spam it
+				await timer(3000);
+			}
+			// If we finish import, save it to database
+			if(i === icards.length) {
+				console.log("Finished adding cards. Calling SaveLibrary()")
+				this.SaveLibrary(importedCards, 'import');
+			}
+		},
 		searchCommander(searchTerm) {
 			const url = 'https://api.scryfall.com/cards/named?fuzzy=';
 			this.commander = []
@@ -1002,6 +1006,7 @@ export default {
 		font-size: 18px;
 		margin-top: 10px;
 		margin-bottom: 10px;
+		display: block; 
 	}
 
 	.history > div {
