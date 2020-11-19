@@ -2,7 +2,7 @@
 	<v-app dark>
         <div v-bind:class="size">
 			<div dark class="gamepad" v-bind:style="{ backgroundImage: 'url(' + settings.playmat + ')' }">
-				<div class="library">					
+				<div class="library" :class="{ active: showImportWindow }">					
 					<div class="deck-list">
 						<div :class="{ active: showLibraryList }">
 						<span @click="showLibrary()">{{ currentDeck }} <unicon name="angle-down" /></span>
@@ -18,7 +18,7 @@
 						<Result :error="error" :cards="cards" />
                         <div class="result"  v-if="cards.length > 0" >
                         	<span style="color: lightgreen;">Card has been found</span>
-							<button @click="SaveLibrary(cards, 'manually')">Add to library?</button>
+							<button @click="SaveLibrary(cards)">Add to library?</button>
                         </div>
 					</div>
 					<div class="library-list" :class="{ expanded: hideTokenList }">
@@ -62,7 +62,7 @@
 				<div class="battlefield">
                     <div class="settings">
                         <ul>
-							<li @click="ShowImport()">Import Deck</li>
+							<li @click="showImport()">Import Deck</li>
                             <li @click="ChangeView('big')" :class="{ active : size == 'big' }">Big View</li>
                             <li @click="ChangeView('normal')" :class="{ active : size == 'normal' }">Normal View</li>
                             <li @click="ChangeView('small')" :class="{ active : size == 'small' }">Small View</li>
@@ -175,7 +175,7 @@
 				<span class="close-modal" @click="hideTokenSearch()">Close</span>
 			</div>
 		</div>
-		<div class="modal import" v-if="ShowImport">
+		<div class="modal import" v-if="showImportWindow">
 			<div class="modal-content">
 				<h3>Import Deck</h3>
 				<textarea v-model="importCards">
@@ -183,7 +183,7 @@
 				</textarea>
 				<span class="import-progress">{{ importedCards }} / {{ importTotal }}</span>
 				<button @click="ImportDeck(importCards)">Import Deck</button>
-				<span class="close-modal" @click="hideTokenSearch()">Close</span>
+				<span class="close-modal" @click="hideImport()">Close</span>
 			</div>
 		</div>
 	</v-app>
@@ -245,7 +245,7 @@ export default {
 			showTokens: true,
 			hideTokenList: false,
 			gameStarted: false,
-			showImport: false,
+			showImportWindow: false,
 			importInit: false,
 			importedCards: 0,
 			importTotal: 0
@@ -285,7 +285,10 @@ export default {
 			this.showTokenList = true;
 		},
 		showImport() {
-			this.showImport = true;
+			this.showImportWindow = true;
+		},
+		hideImport() {
+			this.showImportWindow = false;
 		},
 		hideTokenSearch() {
 			this.showTokenList = false;
@@ -382,13 +385,11 @@ export default {
 		SaveLibrary(cards, source) {
 			let origin = source;
 			cards.forEach((card) => {
-				console.log(card[0])
+				let card_name = card.name
 
-				let card_name = card[0].name
-
-				if(card[0].card_faces) {
-					let card_image = card[0].card_faces[0].image_uris.png
-					let card_image_alt = card[0].card_faces[1].image_uris.png
+				if(card.card_faces) {
+					let card_image = card.card_faces[0].image_uris.png
+					let card_image_alt = card.card_faces[1].image_uris.png
 
 					if(this.library.length > 0) {
 						libraryRef.doc(this.$router.app._route.params.library).collection("cards").orderBy("id", "desc").limit(1).get().then((querySnapshot) => {
@@ -425,7 +426,7 @@ export default {
 					}
 				}
 				else {
-					let card_image = card[0].image_uris.png
+					let card_image = card.image_uris.png
 					if(this.library.length > 0) {
 						libraryRef.doc(this.$router.app._route.params.library).collection("cards").orderBy("id", "desc").limit(1).get().then((querySnapshot) => {
 							querySnapshot.forEach((doc) => {
@@ -521,8 +522,6 @@ export default {
 			const url = 'https://api.scryfall.com/cards/named?fuzzy=';
 			const timer = ms => new Promise(res => setTimeout(res, ms))
 
-			let importedCards = [];
-
 
 			for(var i = 0; i < icards.length; i++) {
 				this.importInit = true
@@ -541,7 +540,7 @@ export default {
 					.then(response => {
 						var cardsData = response
 						self.icards = new Array(cardsData);
-						importedCards.push(self.icards);
+						this.SaveLibrary(self.icards);
 					})
 					.catch(error => {
 						console.error('Error:',error);
@@ -551,8 +550,7 @@ export default {
 			}
 			// If we finish import, save it to database
 			if(i === icards.length) {
-				console.log("Finished adding cards. Calling SaveLibrary()")
-				this.SaveLibrary(importedCards, 'import');
+				console.log("Finished adding cards.")
 			}
 		},
 		searchCommander(searchTerm) {
@@ -908,7 +906,7 @@ export default {
 		background-color: rgba(0,0,0, 0.4);
 		left: 0;
 		top: 0;
-		z-index: 99999999999;
+		z-index: 20000;
 	}
 
 	.modal textarea {
