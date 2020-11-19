@@ -385,8 +385,7 @@ export default {
 				this.lifecount++
 			}
 		},
-		SaveLibrary(cards, source) {
-			let origin = source;
+		SaveLibrary(cards) {
 			cards.forEach((card) => {
 				let card_name = card.name
 
@@ -478,8 +477,8 @@ export default {
 				}
 			})
 			.then(response => {
-				var cardsData = new Array(response)
-				self.cards.push(cardsData);
+				var cardsData = response
+				self.cards = new Array(cardsData)
        		})
 			.catch(error => {
 				console.error('Error:',error);
