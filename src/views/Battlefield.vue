@@ -546,7 +546,7 @@ export default {
 						console.error('Error:',error);
 				})
 				// API doesn't allow us to spam it
-				await timer(3000);
+				await timer(1000);
 			}
 			// If we finish import, save it to database
 			if(i === icards.length) {
@@ -646,6 +646,14 @@ export default {
 		z-index: 50
 	}
 
+	.library.active {
+		z-index: 30000;
+	}
+
+	.library.active .token-library {
+		display: none;
+	}
+
 	.special-zone {
 		display: grid;
 		grid-template-rows: 1fr 1fr;
@@ -672,6 +680,7 @@ export default {
 		transition: 0.3s ease-in-out;
 	}
 
+	.library.active .library-list,
 	.library-list.expanded {
 		max-height: 80vh;
 	}

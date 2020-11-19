@@ -149,6 +149,8 @@ export default {
         display: flex;
         flex-wrap: wrap;
         padding-left: 0;
+        overflow-y: scroll;
+        max-height: 400px;
     }
     ul li {
         width: 20%;
