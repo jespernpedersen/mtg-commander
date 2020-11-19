@@ -178,11 +178,13 @@
 		<div class="modal import" v-if="showImportWindow">
 			<div class="modal-content">
 				<h3>Import Deck</h3>
-				<textarea v-model="importCards">
-					
-				</textarea>
-				<span class="import-progress">{{ importedCards }} / {{ importTotal }}</span>
-				<button @click="ImportDeck(importCards)">Import Deck</button>
+				<textarea v-model="importCards"></textarea>
+				<span class="import-progress" v-if="importInit"><span v-if="!importFinished" class="loading">Importing</span> <br />{{ importedCards }} / {{ importTotal }}</span>
+				<div class="import-finished" v-if="importFinished && !importInit">
+					Finished - Added {{ importTotal }} cards
+				</div>
+				<button class="import-deck-btn" @click="ImportDeck(importCards)" v-if="!importInit">Import Deck</button>
+
 				<span class="close-modal" @click="hideImport()">Close</span>
 			</div>
 		</div>
@@ -248,7 +250,8 @@ export default {
 			showImportWindow: false,
 			importInit: false,
 			importedCards: 0,
-			importTotal: 0
+			importTotal: 0,
+			importFinished: false
 		}
 	},
 	created() {
@@ -551,6 +554,8 @@ export default {
 			// If we finish import, save it to database
 			if(i === icards.length) {
 				console.log("Finished adding cards.")
+				this.importInit = false;
+				this.importFinished = true
 			}
 		},
 		searchCommander(searchTerm) {
@@ -921,7 +926,7 @@ export default {
 	.modal textarea {
 		background-color: #FFF;
 		width: 100%;
-		height: 35vh;
+		height: 32vh;
 		color: #000;
 		font-size: 16px;
 		padding: 5px 8px;
@@ -987,6 +992,10 @@ export default {
 	.hide-tokens {
 		margin-left: 10px;
 	}
+
+	.import-deck-btn {
+		margin-top: 20px;
+	}
 	
 	.hide-tokens,
 	.show-tokens {
@@ -1009,10 +1018,10 @@ export default {
 		justify-content: center;
 	}
 
-	.import-progress {
+	.import-progress,
+	.import-finished {
 		font-size: 18px;
 		margin-top: 10px;
-		margin-bottom: 10px;
 		display: block; 
 	}
 
@@ -1029,4 +1038,26 @@ export default {
 		margin-top: -310px;
 		margin-left: 25px;
 	}
+
+	.loading:after {
+		overflow: hidden;
+		display: inline-block;
+		vertical-align: bottom;
+		-webkit-animation: ellipsis steps(4,end) 1800ms infinite;      
+		animation: ellipsis steps(4,end) 1800ms infinite;
+		content: "\2026"; /* ascii code for the ellipsis character */
+		width: 0px;
+		}
+
+		@keyframes ellipsis {
+			to {
+				width: 20px;    
+			}
+		}
+
+		@-webkit-keyframes ellipsis {
+			to {
+				width: 20px;    
+			}
+		}
 </style>
