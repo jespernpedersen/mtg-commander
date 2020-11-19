@@ -181,7 +181,7 @@
 				<textarea v-model="importCards">
 					
 				</textarea>
-				<div class="import-progress">{{ importedCards }} / {{ importTotal }}</div>
+				<span class="import-progress">{{ importedCards }} / {{ importTotal }}</span>
 				<button @click="ImportDeck(importCards)">Import Deck</button>
 				<span class="close-modal" @click="hideTokenSearch()">Close</span>
 			</div>
@@ -996,6 +996,12 @@ export default {
 		align-items: flex-end;
 		flex-direction: column;
 		justify-content: center;
+	}
+
+	.import-progress {
+		font-size: 18px;
+		margin-top: 10px;
+		margin-bottom: 10px;
 	}
 
 	.history > div {
