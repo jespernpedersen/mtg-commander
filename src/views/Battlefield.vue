@@ -62,6 +62,7 @@
 				<div class="battlefield">
                     <div class="settings">
                         <ul>
+							<li @click="ShowImport()">Import Deck</li>
                             <li @click="ChangeView('big')" :class="{ active : size == 'big' }">Big View</li>
                             <li @click="ChangeView('normal')" :class="{ active : size == 'normal' }">Normal View</li>
                             <li @click="ChangeView('small')" :class="{ active : size == 'small' }">Small View</li>
@@ -117,7 +118,8 @@
 							<Search v-on:search-cards="searchCommander" />
 						</div>
 						<div class="commander" v-if="settings.commander">
-                            <Card :key="i" 
+                            <Card 
+								:key="i" 
                                 :id="settings.commander.id"
                                 :name="settings.commander.name"
                                 :image="settings.commander.image"
@@ -153,7 +155,7 @@
 				</div>
 			</div>
         </div>
-		<div class="token-modal" v-if="showTokenList">
+		<div class="modal" v-if="showTokenList">
 			<div class="modal-content">
 				<h3>Tokens</h3>
 				<SearchToken v-on:search-cards="searchTokenData"/>
@@ -170,6 +172,17 @@
 					>
 					</Card>
 				</div>
+				<span class="close-modal" @click="hideTokenSearch()">Close</span>
+			</div>
+		</div>
+		<div class="modal import">
+			<div class="modal-content">
+				<h3>Import Deck</h3>
+				<textarea v-model="importCards">
+					
+				</textarea>
+				<div class="import-progress">{{ importedCards }} / {{ importTotal }}</div>
+				<button @click="ImportDeck(importCards)">Import Deck</button>
 				<span class="close-modal" @click="hideTokenSearch()">Close</span>
 			</div>
 		</div>
@@ -191,6 +204,8 @@ let library = [];
 
 
 let newLifeCount = 20
+let importedCards = 0
+let importTotal = 0
 
 export default {
 	name: 'App',
@@ -229,7 +244,11 @@ export default {
 			showTokenList: false,
 			showTokens: true,
 			hideTokenList: false,
-			gameStarted: false
+			gameStarted: false,
+			showImport: false,
+			importInit: false,
+			importedCards: 0,
+			importTotal: 0
 		}
 	},
 	created() {
@@ -264,6 +283,44 @@ export default {
 		},
 		showTokenSearch() {
 			this.showTokenList = true;
+		},
+		showImport() {
+			this.showImport = true;
+		},
+		async ImportDeck(deck) {
+			let icards = deck.split('\n');
+			const url = 'https://api.scryfall.com/cards/named?fuzzy=';
+			const timer = ms => new Promise(res => setTimeout(res, ms))
+
+			let importedCards = [];
+
+
+			for(var i = 0; i < icards.length; i++) {
+				this.importInit = true
+				
+				this.importedCards = i + 1;
+				this.importTotal = icards.length;
+				// Loop
+				fetch(url + icards[i])
+					.then(res => {
+						if (res.status === 200) {
+							return res.json()
+						} else {
+							self.error = "No results found";
+						}
+					})
+					.then(response => {
+						var cardsData = response
+						self.icards = new Array(cardsData);
+						importedCards.push(self.icards);
+						console.log(importedCards);
+					})
+					.catch(error => {
+						console.error('Error:',error);
+				})
+				// API doesn't allow us to spam it
+    			await timer(3000);
+			}
 		},
 		hideTokenSearch() {
 			this.showTokenList = false;
@@ -697,6 +754,10 @@ export default {
         margin-right: 15px;
     }
 
+	.modal.import .modal-content {
+		text-align: center;
+	}
+
     #commander {
         width: 100%;
     }
@@ -835,7 +896,7 @@ export default {
 	}
 
 
-	.token-modal {
+	.modal {
 		content:"";
 		position: absolute;
 		width: 100vw;
@@ -846,7 +907,17 @@ export default {
 		z-index: 99999999999;
 	}
 
-	.token-modal .modal-content {
+	.modal textarea {
+		background-color: #FFF;
+		width: 100%;
+		height: 35vh;
+		color: #000;
+		font-size: 16px;
+		padding: 5px 8px;
+		margin-top: 20px;
+	}
+
+	.modal .modal-content {
 		position: absolute;
 		top: 50%;
 		left: 50%;
@@ -857,7 +928,7 @@ export default {
 		padding: 10px 60px;
 	}
 
-	.token-modal h3 {
+	.modal h3 {
 		text-align: center;
 		font-size: 40px;
 		padding-top: 15px;
