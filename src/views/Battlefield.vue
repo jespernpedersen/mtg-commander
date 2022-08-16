@@ -2,58 +2,67 @@
 	<v-app dark>
         <div v-bind:class="size">
 			<div dark class="gamepad" v-bind:style="{ backgroundImage: 'url(' + settings.playmat + ')' }">
-				<div class="library">					
+				<div class="library">
 					<div class="deck-list">
 						<div :class="{ active: showLibraryList }">
-						<span @click="showLibrary()">{{ currentDeck }} <unicon name="angle-down" /></span>
-						<ul class="all-libraries">
-							<li class="library-decks" v-for="library in alllibraries" :key="library.active"> 
-								<a v-bind:href="'/' + library.name" v-if="!library.active">{{ library.name }}</a>
-							</li>
-						</ul>
+							<span @click="showLibrary()">{{ currentDeck }} <unicon name="angle-down" /></span>
+							<ul class="all-libraries">
+								<li class="library-decks" v-for="library in alllibraries" :key="library.active"> 
+									<a v-bind:href="'/' + library.name" v-if="!library.active">{{ library.name }}</a>
+								</li>
+							</ul>
 						</div>
 					</div>
-					<Search v-on:search-cards="searchData" />
-					<div class="library-tools">
-						<Result :error="error" :cards="cards" />
-                        <div class="result"  v-if="cards.length > 0" >
-                        	<span style="color: lightgreen;">Card has been found</span>
-							<button @click="SaveLibrary(cards)">Add to library?</button>
-                        </div>
-					</div>
-					<div class="library-list">
-                            <Card v-for="card in library" 
-								:key="card.id"
-                                :id="card.id"
-                                :name="card.name"
-                                :image="card.image"
-								:commander="false"
-								:isToken="false"
-                            >
-                            </Card>
-					</div>
-					<div class="token-library">
-						<div class="token-list">
-							<Card v-for="token in tokenLibrary"
-								:key="token.id"
-								:id="token.id"
-								:name="token.name"
-								:image="token.image"
-								:commander="false"
-								:isToken="false"
-								>
-							</Card>
-						</div>
-						<button @click="showTokenSearch()" class="token-button">Search new tokens</button>
-						
-						<div class="history">
-                        	<div v-for="(message, i) in messages" :key="i" >
-								<div class="message">
-									<strong class="owner">{{ message.owner }}: </strong><span>{{ message.text }}</span>
+					<b-tabs content-class="mt-3">
+						<b-tab title="Library" active>
+							<Search v-on:search-cards="searchData" />
+							<div class="library-tools">
+								<Result :error="error" :cards="cards" />
+								<div class="result"  v-if="cards.length > 0" >
+									<span style="color: lightgreen;">Card has been found</span>
+									<button @click="SaveLibrary(cards)">Add to library?</button>
 								</div>
 							</div>
-						</div>
-					</div>
+							<div class="library-list">
+									<Card v-for="card in library" 
+										:key="card.id"
+										:id="card.id"
+										:name="card.name"
+										:image="card.image"
+										:commander="false"
+										:isToken="false"
+										:flip="card.flip"
+										:imagealt="card.alternative_image"
+									>
+									</Card>
+							</div>
+						</b-tab>
+						<b-tab title="Tokens">
+							<div class="token-library">
+								<div class="token-list">
+									<Card v-for="token in tokenLibrary"
+										:key="token.id"
+										:id="token.id"
+										:name="token.name"
+										:image="token.image"
+										:commander="false"
+										:isToken="false"
+										>
+									</Card>
+								</div>
+								<button @click="showTokenSearch()" class="token-button">Search new tokens</button>
+								
+								<div class="history">
+									<div v-for="(message, i) in messages" :key="i" >
+										<div class="message">
+											<strong class="owner">{{ message.owner }}: </strong><span>{{ message.text }}</span>
+										</div>
+									</div>
+								</div>
+							</div>
+						</b-tab>
+						<b-tab title="Temporary"><p>I'm the third tab</p></b-tab>
+					</b-tabs>
 				</div>
 				<div class="battlefield">
                     <div class="settings">
@@ -66,19 +75,6 @@
 							<label>Playmat: </label>
 							<input type="text" v-model="settings.playmat" @change="SavePlaymat(settings.playmat)" placeholder="(should be 1920x1080)" />
 						</div>
-                    </div>
-                    <div class="lands">
-                        <figure v-for="(basicland, i) in basiclands" :key="i" class="basic-land">
-                            <Card
-                                :type="basicland.landType"
-                                :id="i"
-								:commander="false"
-								:isToken="false"
-                            >
-                            </Card>
-                        </figure>
-                        <LandMenu>
-                        </LandMenu>
                     </div>
 				</div>
 				<div class="special-zone">
@@ -158,8 +154,6 @@ import LandMenu from '@/components/LandMenu'
 import { libraryRef, messageRef } from '@/../firebase/db.js'
 
 let library = [];
-
-
 let newLifeCount = 20
 
 export default {
@@ -184,7 +178,7 @@ export default {
 			error: "", 
 			symbols: [],
             library: [],
-            basiclands: [],
+            temporaryCards: [],
 			hasSearchedCommander: null,
             testlibrary: [],
             playmat: '',
@@ -193,7 +187,6 @@ export default {
 			commanderid: 0,
 			alllibraries: [],
 			currentDeck: this.$router.app._route.params.library,
-			showLibraryList: false, 
 			settings: [],
 			showTokenList: false
 		}
@@ -201,20 +194,6 @@ export default {
 	created() {
 	},
 	methods: {
-		showLibrary() {
-			if(this.showLibraryList == false) {
-				this.showLibraryList = true
-			}
-			else {
-				this.showLibraryList = false
-			}
-		},
-		showTokenSearch() {
-			this.showTokenList = true;
-		},
-		hideTokenSearch() {
-			this.showTokenList = false;
-		},
 		AddToken(name, image) {
 			let tokenArray = {
 				name: name,
@@ -262,6 +241,12 @@ export default {
 			}
 			this.commanderdamages.push(CommanderArray)
 			this.commaderid++;
+		},
+		showTokenSearch() {
+			this.showTokenList = true;
+		},
+		hideTokenSearch() {
+			this.showTokenList = false;
 		},
         ChangeView(view) {
             this.size = view;
@@ -423,8 +408,8 @@ export default {
 					name: self.commander[0].name,
 					image: self.commander[0].image_uris.png
 				}
+				console.log(this.$router.app._route.params.library);
 				libraryRef.doc(this.$router.app._route.params.library).set({
-					playmat: this.settings.playmat,
 					commander: commanderArray
 				})
        		})
@@ -482,9 +467,13 @@ export default {
 	.special-zone {
 		display: grid;
 		grid-template-rows: 1fr 1fr;
-		
 		position: relative;
 	}
+
+	.card {
+		background-color: transparent;
+	}
+
 	.command-zone {
 		padding: 15px;
 	}
@@ -498,15 +487,15 @@ export default {
 		text-align: center;
 	}
 
-	.library-list {
+	.library-list,
+	.token-list {
 		overflow-y: scroll;
-		height: calc(100% - 120px);
-    	max-height: 40vh;
+		height: calc(100% - 60px);
+		max-height: 40vh;
 	}
 
 	.token-list {
-		overflow-y: scroll;
-    	max-height: 20vh;		
+		overflow-y: scroll;	
 	}
 
     .gamepad {
@@ -518,7 +507,7 @@ export default {
     .library-list,
 	.token-list {
         padding-right: 15px;
-		padding-top: 127%;
+		padding-top: 109%;
 	}
 
 
@@ -630,19 +619,9 @@ export default {
 		width: auto;
 		max-width: 75px;
 	}
-
-	.basic-lands {
-		position: fixed;
-		top: 93vh;
-		width: 100%;
-		text-align: center;
-		transform: translate(-50%, -50%);
-		left: 50%;
-		z-index: 9999;
-	}
 	
 	.commander-damage-wrapper > button {
-		min-width: 250px
+		min-width: 250px;
 	}
 
 	.all-libraries {
@@ -658,6 +637,10 @@ export default {
 
 	.deck-list {
 		position: relative;
+		margin-bottom: 20px;
+	}
+	.mt-3 {
+		margin-top: 0 !important;
 	}
 
 	.deck-list span {

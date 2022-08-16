@@ -3,25 +3,12 @@
         class="moveable card"
         v-bind="moveable"
         @drag="handleDrag"
+        v-if="!isToken"
     >
         <figure v-if="!type && !isToken" @click="TapUntapCard($event, id)">
             <span v-if="!showModifier" class="counter" @click="AddCounter()">Add Counter</span>
             <span v-if="showModifier" class="modifier"  v-on:click="IncreaseCounter($event)" v-on:click.right="DecreaseCounter($event)">{{ modifiersign }}{{ modifier }}</span>
             <img v-bind:src="image" :title="name" :class="{ tapped : tappedCard == true }" /> 
-        </figure>
-        <figure v-if="isToken" @click="AddToken(name, image)">
-            <img v-bind:src="image" :title="name" :class="{ tapped : tappedCard == true }" /> 
-        </figure>
-        <!-- Basic Land -->
-        <figure v-if="type" @click="TapUntapLand($event, id)">
-
-            <span v-if="!showModifier" class="counter" @click="AddCounter()">Add Counter</span>
-            <span v-if="showModifier" class="modifier"  v-on:click="IncreaseCounter($event)" v-on:click.right="DecreaseCounter($event)">{{ modifiersign }}{{ modifier }}</span>
-            <img v-if="type == 'white'" src="./../assets/basiclands/plains.png" :class="{ tapped : tappedCard == true }" />
-            <img v-if="type == 'blue'" src="./../assets/basiclands/island.png" :class="{ tapped : tappedCard == true }"/>
-            <img v-if="type == 'black'" src="./../assets/basiclands/swamp.png" :class="{ tapped : tappedCard == true }"/>
-            <img v-if="type == 'red'" src="./../assets/basiclands/mountain.png" :class="{ tapped : tappedCard == true }"/>
-            <img v-if="type == 'green'" src="./../assets/basiclands/forest.png" :class="{ tapped : tappedCard == true }"/> 
         </figure>
     </Moveable>
 </template>
