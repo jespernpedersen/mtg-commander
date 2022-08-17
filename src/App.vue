@@ -27,9 +27,22 @@ export default {
 		font-family: 'Beleren', sans-serif;
 	}
 
+	.v-tabs__bar {
+		background-color: transparent !important;
+	}
+
+	.v-tabs__wrapper--show-arrows {
+		margin: 0 !important;
+	}
+
 	h2 {
 		padding-top: 10px;
 		font-size: 28px;
+	}
+
+	.application a,
+	.application a:hover {
+		color: #FFF;
 	}
 
 </style>

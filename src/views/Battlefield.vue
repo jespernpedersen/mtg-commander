@@ -13,48 +13,79 @@
 						</ul>
 						</div>
 					</div>
-					<Search v-on:search-cards="searchData" />
-					<div class="library-tools">
-						<Result :error="error" :cards="cards" />
-                        <div class="result"  v-if="cards.length > 0" >
-                        	<span style="color: lightgreen;">Card has been found</span>
-							<button @click="SaveLibrary(cards)">Add to library?</button>
-                        </div>
-					</div>
-					<div class="library-list" :class="{ expanded: hideTokenList }">
-                            <Card v-for="card in library" 
-								:key="card.id"
-                                :id="card.id"
-                                :name="card.name"
-                                :image="card.image"
-								:commander="false"
-								:isToken="false"
-								:flip="card.flip"
-								:imagealt="card.alternative_image"
-                            >
-                            </Card>
-					</div>
-					<div class="token-library">
-						<div class="token-list" v-if="!hideTokenList">
-							<Card v-for="token in tokenLibrary"
-								:key="token.id"
-								:id="token.id"
-								:name="token.name"
-								:image="token.image"
-								:commander="false"
-								:isToken="false"
-								:cannotMove="true"
-								>
-							</Card>
-						</div>
-						<button @click="showTokenSearch()"  v-if="!hideTokenList" class="token-button">Search new tokens</button>
-						<button @click="hideTokens()" v-if="!hideTokenList" class="hide-tokens">Hide Token List</button>
-						<button @click="showAllTokens()" v-if="hideTokenList" class="show-tokens">Show Token List</button>
-						<div class="history">
-                        	<div v-for="(message, i) in messages" :key="i" >
-								<div class="message">
-									<strong class="owner">{{ message.owner }}: </strong><span>{{ message.text }}</span>
+					<v-tabs v-model="tab" background-color="transparent" dark="false" show-arrows="false">
+						<v-tab href="#tab-1">Library</v-tab>
+						<v-tab href="#tab-2">Tokens</v-tab>
+						<v-tab href="#tab-3">Temporary</v-tab>
+					<v-tabs-items v-model="tab">
+						<v-tab-item :value="'tab-1'">
+							<Search v-on:search-cards="searchData" />
+							<div class="library-tools">
+								<Result :error="error" :cards="cards" />
+								<div class="result"  v-if="cards.length > 0" >
+									<span style="color: lightgreen;">Card has been found</span>
+									<button @click="SaveLibrary(cards)">Add to library?</button>
 								</div>
+							</div>
+							<div class="library-list">
+									<Card v-for="card in library" 
+										:key="card.id"
+										:id="card.id"
+										:name="card.name"
+										:image="card.image"
+										:commander="false"
+										:isToken="false"
+										:flip="card.flip"
+										:imagealt="card.alternative_image"
+									>
+									</Card>
+							</div>
+						</v-tab-item>
+						<v-tab-item :value="'tab-2'">
+							<div class="token-library">
+								<div class="token-list">
+									<Card v-for="token in tokenLibrary"
+										:key="token.id"
+										:id="token.id"
+										:name="token.name"
+										:image="token.image"
+										:commander="false"
+										:isToken="false"
+										:cannotMove="true"
+										>
+									</Card>
+								</div>
+								<button @click="showTokenSearch()" class="token-button">Search new tokens</button>
+							</div>
+						</v-tab-item>
+						<v-tab-item :value="'tab-3'">
+							<Search v-on:search-cards="searchData" />
+							<div class="library-tools">
+								<Result :error="error" :cards="cards" />
+								<div class="result"  v-if="cards.length > 0" >
+									<span style="color: lightgreen;">Card has been found</span>
+									<button @click="AddTempCard(cards)">Add card?</button>
+								</div>
+							</div>
+							<div class="library-list">
+								<Card v-for="card in tempCards" 
+									:key="card.id"
+									:id="card.id"
+									:name="card.name"
+									:image="card.image"
+									:commander="false"
+									:isToken="false"
+									:flip="card.flip"
+									:imagealt="card.alternative_image"
+								/>
+							</div>
+						</v-tab-item>
+					</v-tabs-items>
+					</v-tabs>
+					<div class="history">
+						<div v-for="(message, i) in messages" :key="i" >
+							<div class="message">
+								<strong class="owner">{{ message.owner }}: </strong><span>{{ message.text }}</span>
 							</div>
 						</div>
 					</div>
@@ -85,19 +116,6 @@
                             </Card>
                         </figure>
 					</div>
-                    <div class="lands">
-                        <figure v-for="(basicland, i) in basiclands" :key="i" class="basic-land">
-                            <Card
-                                :type="basicland.landType"
-                                :id="i"
-								:commander="false"
-								:isToken="false"
-                            >
-                            </Card>
-                        </figure>
-                        <LandMenu>
-                        </LandMenu>
-                    </div>
 				</div>
 				<div class="special-zone">
 						<div class="commander-damage-wrapper" v-if="hasSearchedCommander">
@@ -123,6 +141,8 @@
                                 :id="settings.commander.id"
                                 :name="settings.commander.name"
                                 :image="settings.commander.image"
+								:flip="settings.commander.flip"
+								:imagealt="settings.commander.alternative_image"
 								:commander="true"
 								:isToken="false"
                             >
@@ -134,7 +154,9 @@
 									:name="settings.partner.name"
 									:image="settings.partner.image"
 									:commander="true"
-									:isToken="false"
+									:isToken="false"			
+									:flip="settings.partner.flip"
+									:imagealt="settings.partner.alternative_image"
 							>
 							</Card>
 						</div>
@@ -221,11 +243,13 @@ export default {
 	},
 	data () {
 		return {
+			tabs: null,
 			lifecount: newLifeCount,
 			cardResults: [],
 			commander: [],
 			cards: [],
 			messages: [],
+			tempCards: [],
 			tokenLibrary: [],
 			tokenList: [],
 			tokensActive: [],
@@ -245,7 +269,6 @@ export default {
 			settings: [],
 			showTokenList: false,
 			showTokens: true,
-			hideTokenList: false,
 			gameStarted: false,
 			showImportWindow: false,
 			importInit: false,
@@ -269,12 +292,6 @@ export default {
 				image: image,
 				id: this.tokensActive.length
 			})
-		},
-		hideTokens() {
-			this.hideTokenList = true
-		},
-		showAllTokens() {
-			this.hideTokenList = false
 		},
 		showLibrary() {
 			if(this.showLibraryList == false) {
@@ -385,6 +402,29 @@ export default {
 				this.lifecount++
 			}
 		},
+		AddTempCard(cards) {
+			console.log(cards);
+			if(cards[0].card_faces) {
+				let tempArray = {
+					id: this.tempCards.length + 1,
+					name: cards[0].name,
+					image: cards[0].card_faces[0].image_uris.png,
+					alternative_image: cards[0].card_faces[1].image_uris.png,
+					flip: true
+				}
+				this.tempCards.push(tempArray);
+			}
+			else {
+				let tempArray = {
+					id: this.tempCards.length + 1,
+					name: cards[0].name,
+					image: cards[0].image_uris.png
+				}
+				this.tempCards.push(tempArray);
+				
+				console.log(this.tempCards);
+			}
+		},
 		SaveLibrary(cards) {
 			cards.forEach((card) => {
 				let card_name = card.name
@@ -459,7 +499,6 @@ export default {
 						})					
 					}
 				}
-				console.log(card_image)
 			})
 		},
 		searchData(searchTerm) {
@@ -680,18 +719,13 @@ export default {
 	.library-list {
 		overflow-y: scroll;
 		height: calc(100% - 120px);
-    	max-height: 40vh;
+    	max-height: 70vh;
 		transition: 0.3s ease-in-out;
-	}
-
-	.library.active .library-list,
-	.library-list.expanded {
-		max-height: 80vh;
 	}
 
 	.token-list {
 		overflow-y: scroll;
-    	max-height: 20vh;		
+    	max-height: 70vh;		
 	}
 
     .gamepad {
@@ -984,7 +1018,7 @@ export default {
 	.show-tokens {
 		position: relative;
 		z-index: 99999999999;
-		margin-top: 5px;
+		margin-top: 20px;
 		font-size: 12px;
 	}
 
@@ -1006,7 +1040,7 @@ export default {
 		padding: 20px;
 		overflow-y: scroll;
 		position: absolute;
-		bottom: 45px;
+		bottom: 187px;
 		left: 290px;
 		width: 120%;
 		color: #000;
