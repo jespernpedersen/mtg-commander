@@ -314,10 +314,6 @@ export default {
 			this.showTokenList = false;
 		},
 		AddToken(name, image) {
-			let tokenArray = {
-				name: name,
-				image: image
-			}
 			libraryRef.doc(this.$router.app._route.params.library).collection("tokens").doc().set({
 				name: name,
 				image: image

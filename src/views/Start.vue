@@ -16,7 +16,7 @@
             <h2>All made decks</h2>
             <ul class="all-libraries">
                 <li class="library-decks" v-for="library in alllibraries" :key="library.active"> 
-                    <a v-bind:href="'/' + library.name" v-if="!library.active">{{ library.name }}</a>
+                    <a v-bind:href="'mtg-commander/' + library.name" v-if="!library.active">{{ library.name }}</a>
                 </li>
             </ul>
         </div>

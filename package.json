@@ -10,6 +10,7 @@
     "deploy": "gh-pages -d dist"
   },
   "dependencies": {
+    "bootstrap-vue": "^2.23.1",
     "firestore": "^1.1.6",
     "vue": "^2.6.6",
     "vue-firestore": "^0.3.30",
