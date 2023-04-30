@@ -4,7 +4,7 @@ import VueRouter from 'vue-router'
 Vue.use(VueRouter)
 
 const my_routes = [{
-        path: '/mtg-commander/:library',
+        path: '/:library',
         params: {
             library: ':id'
         },
@@ -12,12 +12,12 @@ const my_routes = [{
             import ( /* webpackChunkName: "about" */ '@/views/Battlefield.vue')
     },
     {
-        path: '/mtg-commander/',
+        path: '/',
         component: () =>
             import ( /* webpackChunkName: "about" */ '@/views/Start.vue')
     },
     {
-        path: '/mtg-commander/:library/hand',
+        path: '/:library/hand',
         params: {
             library: ':id'
         },
