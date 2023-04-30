@@ -13,6 +13,13 @@
 </head>
 
 <body>
+    <script>
+        if (sessionStorage.redirect) {
+            const redirect = sessionStorage.redirect;
+            delete sessionStorage.redirect;
+            history.replaceState(null, null, redirect);
+        }
+    </script>
     <noscript>
       <strong>We're sorry but mtg-vue doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>
     </noscript>

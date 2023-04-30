@@ -56,12 +56,7 @@ module.exports = (env, argv) => ({
         new HtmlWebpackPlugin({
             template: path.resolve(__dirname, 'static', 'index.html'),
             inject: true
-        }),
-        new CopyWebpackPlugin([{
-            from: path.resolve(__dirname, 'static'),
-            to: path.resolve(__dirname, 'dist'),
-            toType: 'dir'
-        }])
+        })
     ],
 
     optimization: {
