@@ -37,7 +37,6 @@
 										:isToken="false"
 										:flip="card.flip"
 										:imagealt="card.alternative_image"	
-										@add-token="AddToken"
 									>
 									</Card>
 							</div>
@@ -53,6 +52,7 @@
 										:commander="false"
 										:isToken="false"
 										:cannotMove="true"
+										@add-token="DuplicateToken"
 										>
 									</Card>
 								</div>
@@ -287,7 +287,8 @@ export default {
 		});
 	},
 	methods: {
-		DuplicateToken(name, image) {
+		DuplicateToken(payload) {
+			const { name, image } = payload;
 			this.tokensActive.push({
 				name: name,
 				image: image,
@@ -314,7 +315,8 @@ export default {
 		hideTokenSearch() {
 			this.showTokenList = false;
 		},
-		AddToken(name, image) {
+		AddToken(payload) {
+        	const { name, image } = payload;
 			libraryRef.doc(this.$router.app._route.params.library).collection("tokens").doc().set({
 				name: name,
 				image: image
@@ -400,7 +402,6 @@ export default {
 			}
 		},
 		AddTempCard(cards) {
-			console.log(cards);
 			if(cards[0].card_faces) {
 				let tempArray = {
 					id: this.tempCards.length + 1,
