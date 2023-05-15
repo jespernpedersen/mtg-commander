@@ -36,7 +36,8 @@
 										:commander="false"
 										:isToken="false"
 										:flip="card.flip"
-										:imagealt="card.alternative_image"
+										:imagealt="card.alternative_image"	
+										@add-token="AddToken"
 									>
 									</Card>
 							</div>

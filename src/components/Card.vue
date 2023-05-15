@@ -92,8 +92,7 @@ export default {
   }),
   methods: {
     AddTokenToBattlefield(name, image) {
-        console.log(this.$parent.$parent.$parent.$parent.$parent);
-        // this.$parent.$parent.AddToken(name, image)
+        this.$emit('add-token', { name: name, image: image });
     },
     transformCard(e, id) {
         if(this.transformed == true) {
